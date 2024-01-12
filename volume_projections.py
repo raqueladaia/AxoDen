@@ -5,7 +5,7 @@ from skimage.filters import threshold_otsu
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-import tabulate
+
 
 def get_tif_files(folder_path):
     tif_files = []
@@ -35,24 +35,19 @@ def count_black_pixels(image):
     return black_pixels
 
 
-if __name__ == '__main__':
-        
-    pixel_size = 0.75521  # um, based on 20x objective and the printed table next to the HALO PC
-    folder_path = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Keyence_imaging\ACC_project\analysis\projections_quantification"
-
+def collect_data(folder_path, pixel_size):
+    # Create an empty DataFrame to store the information
+    table_data = pd.DataFrame(columns=['animal', 'brain_area', 'white_pixels', 'black_pixels', 'total_pixels'])
+    
     # Create a folder for the control plots if it doesn't exist in the folder path
     if not os.path.exists(os.path.join(folder_path, 'control_plots')):
         os.mkdir(os.path.join(folder_path, 'control_plots'))
 
     # Create a list with all the tif files in the folder    
-    tif_files = get_tif_files(folder_path)
+    file_list = get_tif_files(folder_path)
 
-    # Create an empty DataFrame to store the information
-    table_data = pd.DataFrame(columns=['animal', 'brain_area', 'white_pixels', 'black_pixels', 'total_pixels'])
-
-    print('Collecting data...')
     # Loop through all the images in the folder
-    for filepath in tif_files:
+    for filepath in file_list:
 
         img_name = os.path.basename(filepath)
         animal = img_name.split('_')[0]
@@ -62,9 +57,10 @@ if __name__ == '__main__':
         img = open_image(filepath)
         thr = threshold_otsu(np.array(img))
         if thr <= 10:
-            thr = np.int32(20)  # This is to avoid the threshold to be too low and the image to be completely white, causing false positives
+            thr = np.int32(20)
         img_bin = binarize_image(img, thr)
 
+            
         # Calculate the area of the image and the area of the white and black pixels
         white_pixels = count_white_pixels(img_bin)
         black_pixels = count_black_pixels(img_bin)
@@ -75,13 +71,16 @@ if __name__ == '__main__':
         area_black = black_pixels * pixel_size**2
 
         # Append the information to the DataFrame
-        _temp_ = {'animal': animal, 'brain_area': brain_area, 'white_pixels': white_pixels, 'black_pixels': black_pixels, 'total_pixels': all_pixels}
+        _temp_ = {'animal': animal, 'brain_area': brain_area, 'white_pixels': white_pixels, 
+                  'black_pixels': black_pixels, 'total_pixels': all_pixels}
         table_data.loc[len(table_data)] = _temp_
 
         # Create a control plot for each image
         fig, ax = plt.subplots(1, 3, figsize=(15, 5))
         area_image_mm = area_image / 1000  # Convert from um^2 to mm^2
-        fig.suptitle(f'Animal {animal} | {brain_area} area: {area_image_mm:.2f} mm^2 | Threshold: {thr}', weight='bold') 
+        fig.suptitle(f'Animal {animal} | {brain_area} area: {area_image_mm:.2f} mm^2 | Threshold: {thr}', weight='bold')
+        
+        # Plot original image and binarized image
         ax[0].imshow(img, cmap='gray')
         ax[0].set_title('Original image in grayscale')
         ax[0].set_xlabel('mm')
@@ -91,7 +90,7 @@ if __name__ == '__main__':
         ax[1].set_xlabel('mm')
         ax[1].set_ylabel('mm')
         
-        # Plotting pie chart
+        # Plot pie chart
         labels = ['White Pixels', 'Black Pixels']
         sizes = [area_white, area_black]
         colors = ['white', 'grey']
@@ -121,33 +120,42 @@ if __name__ == '__main__':
         plt.savefig(figure_path, dpi=300)        
         plt.close()
 
-    print('Finished colleing data!')
-
     # Compute the percentage of white pixels
     table_data['white_pixels_percentage'] = table_data['white_pixels'] / table_data['total_pixels'] * 100
 
     # Save the DataFrame as a csv file
     table_data.to_csv(os.path.join(folder_path, 'projections_quantification.csv'), index=False)
 
-    print('Finished saving data!')
+    return table_data
 
-    # Create a plot with the data
+
+def plot_data(folder_path, datatable):
+    
+    # Create a figure with two subplots
     fig, ax = plt.subplots(1, 2, figsize=(15, 5))
-    brain_areas = table_data['brain_area'].unique()
+    brain_areas = datatable['brain_area'].unique()
     fig.suptitle('Projections Quantification', weight='bold')
 
-    dict_animals_brain_area = {}
+    # Set the color for the bars
     color_bars = 'royalblue'
+
+    # Create a dictionary with the animals per brain area
+    dict_animals_brain_area = {}
+    
+    # Plot the bar plot with the mean and sem of the white pixels percentage
     for i_brar, br_ar in enumerate(brain_areas):
         
-        data = table_data[table_data['brain_area'] == br_ar]
+        # Get the data for the brain area
+        data = datatable[datatable['brain_area'] == br_ar]
         brar_animals = data['animal'].unique()
         white_pixels = data['white_pixels_percentage']
         mean_white_pixels_percent = np.mean(data['white_pixels_percentage'])
         sem_white_pixels_percent = np.std(data['white_pixels_percentage']) / np.sqrt(len(white_pixels))
 
+        # Fill the dictionary with the animals in the brain area
         dict_animals_brain_area[br_ar] = brar_animals.tolist()
 
+        # Plot the bar plot with the mean and sem
         ax[0].bar(i_brar, mean_white_pixels_percent, color=color_bars, yerr=sem_white_pixels_percent)
 
         # Plot the scatter plot with round markers
@@ -157,33 +165,43 @@ if __name__ == '__main__':
         ax[0].set_xticks(np.arange(0, len(brain_areas)))
         ax[0].set_xticklabels(brain_areas, rotation=45)
 
+    # Print the number of animals per brain area
+    df = pd.DataFrame.from_dict(dict_animals_brain_area, orient='index')
+    df['animals'] = df.apply(lambda row: ', '.join(row.astype(str)), axis=1)
+    df['animals'] = df['animals'].apply(lambda x: x.replace(', None', ''))  # Remove None values
+    df = df.iloc[:, 4:]  # Remove columns 0 to 3
 
-df = pd.DataFrame.from_dict(dict_animals_brain_area, orient='index')
-# Collect values of all columns for each row in a new column
-df['animals'] = df.apply(lambda row: ', '.join(row.astype(str)), axis=1)
-df['animals'] = df['animals'].apply(lambda x: x.replace(', None', ''))
-# Drop all columns except the new one
-# df['N'] = df['animals'].apply(lambda row: len(row.split(', ')))
-df = df.iloc[:, 4:]  # Remove columns 0 to 3
+    # Replace the index with the values in the new column
+    df['brain_area_with_animals'] = df.index + ' (N=' + df['animals'].apply(lambda x: str(x.count(',') + 1)) + ')'
+    df = df.set_index(df['brain_area_with_animals'])
+    df = df.drop(columns=['brain_area_with_animals'])
 
-# Replace the index with the values in the new column
-df['brain_area_with_animals'] = df.index + ' (N=' + df['animals'].apply(lambda x: str(x.count(',') + 1)) + ')'
-df = df.set_index(df['brain_area_with_animals'])
-df = df.drop(columns=['brain_area_with_animals'])
+    # Remove column and index names
+    df.columns = [''] * len(df.columns)
+    df.index.name = ''
 
-# Remove column and index names
-df.columns = [''] * len(df.columns)
-df.index.name = ''
+    ax[1].clear()
+    ax[1].set_title('Animals per Brain Area')
+    ax[1].axis('off')
+    ax[1].text(0.05, 0.1, df.to_string(header=False), fontsize=9)
 
-ax[1].clear()
-ax[1].set_title('Animals per Brain Area')
-ax[1].axis('off')
-ax[1].text(0.05, 0.1, df.to_string(header=False), fontsize=9)
+    plt.tight_layout()
 
-plt.tight_layout()
+    # Save the figure
+    figure_name = 'projections_quantification.png'
+    figure_path = os.path.join(folder_path, figure_name)
+    plt.savefig(figure_path, dpi=300)
+    plt.close()
 
-# Save the figure
-figure_name = 'projections_quantification.png'
-figure_path = os.path.join(folder_path, figure_name)
-plt.savefig(figure_path, dpi=300)
-plt.close()
+
+
+if __name__ == '__main__':
+        
+    pixel_size = 0.75521  # um, based on 20x objective and the printed table next to the HALO PC
+    folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Keyence_imaging\ACC_project\analysis\projections_quantification"
+
+    # Collect the data and save it as a csv file
+    quant_projections = collect_data(folderpath, pixel_size)
+
+    # Plot the data
+    plot_data(quant_projections)
