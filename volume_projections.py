@@ -168,13 +168,15 @@ def plot_data(folder_path, datatable):
     # Print the number of animals per brain area
     df = pd.DataFrame.from_dict(dict_animals_brain_area, orient='index')
     df['animals'] = df.apply(lambda row: ', '.join(row.astype(str)), axis=1)
-    df['animals'] = df['animals'].apply(lambda x: x.replace(', None', ''))  # Remove None values
+    df['animals'] = df['animals'].apply(lambda x: x.replace(', nan', ''))  # Remove None values
     df = df.iloc[:, 4:]  # Remove columns 0 to 3
 
     # Replace the index with the values in the new column
     df['brain_area_with_animals'] = df.index + ' (N=' + df['animals'].apply(lambda x: str(x.count(',') + 1)) + ')'
+    df['animals'] = df['animals'].apply(lambda x: x.replace('.0', ''))  # Remove None values
     df = df.set_index(df['brain_area_with_animals'])
     df = df.drop(columns=['brain_area_with_animals'])
+
 
     # Remove column and index names
     df.columns = [''] * len(df.columns)
@@ -185,7 +187,11 @@ def plot_data(folder_path, datatable):
     ax[1].axis('off')
     ax[1].text(0.05, 0.1, df.to_string(header=False), fontsize=9)
 
+    # Set the layout
     plt.tight_layout()
+
+    # Delete the DataFrame
+    del df
 
     # Save the figure
     figure_name = 'projections_quantification.png'
@@ -204,4 +210,4 @@ if __name__ == '__main__':
     quant_projections = collect_data(folderpath, pixel_size)
 
     # Plot the data
-    plot_data(quant_projections)
+    plot_data(folderpath, quant_projections)
