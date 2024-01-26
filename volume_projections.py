@@ -5,6 +5,7 @@ from skimage.filters import threshold_otsu
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def get_tif_files(folder_path):
@@ -15,9 +16,15 @@ def get_tif_files(folder_path):
     return tif_files
 
 
-def open_image(file_path):
-    image = Image.open(file_path).convert('L')  # Convert image to grayscale
-    return image
+def open_image(file_path, img_rectangle_shape):
+    image = Image.open(file_path)
+    mask = np.full_like(image, False)[:, :, 0]
+    if not img_rectangle_shape:
+        image_matrix = np.array(image)
+        mask = np.all(image_matrix == [0, 0, 0], axis=-1)  # Find the area of the image that cotains tissue
+    image_gray = image.convert('L')  # Convert image to grayscale
+    cut_image = np.where(mask, np.nan, image_gray) # Cut the image to the area that contains tissue
+    return cut_image, mask
 
 
 def binarize_image(image, threshold):
@@ -35,7 +42,7 @@ def count_black_pixels(image):
     return black_pixels
 
 
-def collect_data(folder_path, pixel_size):
+def collect_data(folder_path, pixel_size, img_shape):
     # Create an empty DataFrame to store the information
     table_data = pd.DataFrame(columns=['animal', 'brain_area', 'white_pixels', 'black_pixels', 'total_pixels'])
     
@@ -54,8 +61,9 @@ def collect_data(folder_path, pixel_size):
         brain_area = img_name.split('_')[1]
 
         # Open the image and calculate the threshold
-        img = open_image(filepath)
-        thr = threshold_otsu(np.array(img))
+        img, msk = open_image(filepath, img_shape)
+        non_nan_values = img[~np.isnan(img)]
+        thr = threshold_otsu(np.array(non_nan_values))
         if thr <= 10:
             thr = np.int32(20)
         img_bin = binarize_image(img, thr)
@@ -76,43 +84,52 @@ def collect_data(folder_path, pixel_size):
         table_data.loc[len(table_data)] = _temp_
 
         # Create a control plot for each image
-        fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+        fig, ax = plt.subplots(2, 2, figsize=(10, 10))
         area_image_mm = area_image / 1000  # Convert from um^2 to mm^2
-        fig.suptitle(f'Animal {animal} | {brain_area} area: {area_image_mm:.2f} mm^2 | Threshold: {thr}', weight='bold')
+        fig.suptitle(f'Animal {animal} | {brain_area} | Threshold: {thr:.3f}', weight='bold')
         
-        # Plot original image and binarized image
-        ax[0].imshow(img, cmap='gray')
-        ax[0].set_title('Original image in grayscale')
-        ax[0].set_xlabel('mm')
-        ax[0].set_ylabel('mm')
-        ax[1].imshow(img_bin, cmap='gray')
-        ax[1].set_title('Binarized image')
-        ax[1].set_xlabel('mm')
-        ax[1].set_ylabel('mm')
+        # Plot original image, binarized image and area of the original image
+        ax[0, 0].imshow(img, cmap='gray')
+        ax[0, 0].set_title('Original image in grayscale')
+        ax[0, 0].set_xlabel('mm')
+        ax[0, 0].set_ylabel('mm')
+        ax[0, 1].imshow(img_bin, cmap='gray')
+        ax[0, 1].set_title('Binarized image')
+        ax[0, 1].set_xlabel('mm')
+        ax[0, 1].set_ylabel('mm')
+        ax[1, 0].imshow(msk, cmap='gray')
+        ax[1, 0].set_title(f'Area original image: {area_image_mm:.2f} mm^2')
+        ax[1, 0].set_xlabel('mm')
+        ax[1, 0].set_ylabel('mm')
         
         # Plot pie chart
         labels = ['White Pixels', 'Black Pixels']
         sizes = [area_white, area_black]
         colors = ['white', 'grey']
-        ax[2].pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
-        ax[2].set_title('Pixel Distribution')
-        ax[2].set_aspect('equal')  # Set aspect ratio to equal for circular pie chart
+        ax[1, 1].pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
+        ax[1, 1].set_title('Pixel distribution in area')
+        ax[1, 1].set_aspect('equal')  # Set aspect ratio to equal for circular pie chart
 
         # Transform x and y axes in ax[0] from pixels to mm
-        x_ax_pixels = np.arange(0, img.width, 100)
+        x_ax_pixels = np.arange(0, img.shape[1], 100)
         x_ax_mm = np.round(x_ax_pixels * pixel_size, decimals=1)
-        y_ax_pixels = np.arange(0, img.height, 100)
+        y_ax_pixels = np.arange(0, img.shape[0], 100)
         y_ax_mm = np.round(y_ax_pixels * pixel_size, decimals=1)
 
-        for axnum in [0, 1]:            
-            ax[axnum].set_xticks(x_ax_pixels)
-            ax[axnum].set_yticks(y_ax_pixels)
-            ax[axnum].set_xticklabels(x_ax_mm, rotation=45)
-            ax[axnum].set_yticklabels(y_ax_mm)
-            ax[axnum].set_xlabel('mm')
-            ax[axnum].set_ylabel('mm')
+        for ax0 in [0, 1]:       
+            for ax1 in [0, 1]:
+                if ax0 + ax1 == 2:
+                    continue
+                ax[ax0, ax1].set_xticks(x_ax_pixels)
+                ax[ax0, ax1].set_yticks(y_ax_pixels)
+                ax[ax0, ax1].set_xticklabels(x_ax_mm, rotation=45)
+                ax[ax0, ax1].set_yticklabels(y_ax_mm)
+                ax[ax0, ax1].set_xlabel('mm')
+                ax[ax0, ax1].set_ylabel('mm')
 
+        # Beautfy the figure
         plt.tight_layout()
+        sns.despine()
 
         # Save the figure
         figure_name = f'{animal}_{brain_area}_control_plot.png'
@@ -168,15 +185,15 @@ def plot_data(folder_path, datatable):
     # Print the number of animals per brain area
     df = pd.DataFrame.from_dict(dict_animals_brain_area, orient='index')
     df['animals'] = df.apply(lambda row: ', '.join(row.astype(str)), axis=1)
-    df['animals'] = df['animals'].apply(lambda x: x.replace(', nan', ''))  # Remove None values
-    df = df.iloc[:, 4:]  # Remove columns 0 to 3
+    df['animals'] = df['animals'].apply(lambda x: x.replace(', None', ''))  # Remove None values
+    i_anim_col = df.columns.get_loc("animals")
+    df = df.iloc[:, i_anim_col:]  # Remove columns 0 to the one with all the animals
 
     # Replace the index with the values in the new column
     df['brain_area_with_animals'] = df.index + ' (N=' + df['animals'].apply(lambda x: str(x.count(',') + 1)) + ')'
     df['animals'] = df['animals'].apply(lambda x: x.replace('.0', ''))  # Remove None values
     df = df.set_index(df['brain_area_with_animals'])
     df = df.drop(columns=['brain_area_with_animals'])
-
 
     # Remove column and index names
     df.columns = [''] * len(df.columns)
@@ -189,6 +206,7 @@ def plot_data(folder_path, datatable):
 
     # Set the layout
     plt.tight_layout()
+    sns.despine(fig=fig, ax=ax[0], top=True, right=True)
 
     # Delete the DataFrame
     del df
@@ -204,10 +222,12 @@ def plot_data(folder_path, datatable):
 if __name__ == '__main__':
         
     pixel_size = 0.75521  # um, based on 20x objective and the printed table next to the HALO PC
-    folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Keyence_imaging\ACC_project\analysis\projections_quantification"
+    # folderpath = r"S:\Shared\custom_data_analysis\volume_projections\test_dataset"
+    folderpath = r"S:\Shared\lab_members\undergraduate_researchers\yung_maxx\Sample Axon Quantification Images\Properly Renamed Images"
+    is_image_rectangle = False
 
     # Collect the data and save it as a csv file
-    quant_projections = collect_data(folderpath, pixel_size)
+    quant_projections = collect_data(folderpath, pixel_size, is_image_rectangle)
 
     # Plot the data
     plot_data(folderpath, quant_projections)

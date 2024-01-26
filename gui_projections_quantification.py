@@ -22,6 +22,7 @@ def run_volume_projections():
     folder_path = folder_path_entry.get()
     data_collection = data_collection_var.get()
     data_analysis = data_analysis_var.get()
+    shape_rectangle = rectangle_shape_var.get()
     pixel_size = get_pixel_size()
 
     # Check if folder_path is empty
@@ -35,7 +36,7 @@ def run_volume_projections():
     # Check if data collection checkbox is toggled
     if data_collection and not data_analysis:
         update_status(status_label, "\n\nCollecting data...")
-        _ = collect_data(folder_path, pixel_size)
+        _ = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nFinished collecting and saving data!")
     
     # Check if data analysis checkbox is toggled
@@ -60,7 +61,7 @@ def run_volume_projections():
     # Check if both data collection and data analysis checkboxes are toggled
     elif data_analysis and data_collection:
         update_status(status_label, "\n\nCollecting data...")
-        table_data = collect_data(folder_path, pixel_size)
+        table_data = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nData analysis and plotting...")
         plot_data(folder_path, table_data)
         update_status(status_label, "\n\nDone")
@@ -91,7 +92,7 @@ pixel_size_entry.insert(tk.END, "0.75521")  # Set the default pixel size
 pixel_size_entry.pack()
 
 # Create note for user
-note_label = tk.Label(window, text="\nNote:\nThe default pixel size is for the 20x Objective.\nPlease change it according to the objective used.\n")
+note_label = tk.Label(window, text="\nNote:\nThe default pixel size is for the 20x Objective.\nPlease change it according to the objective used.\n x4 Objective: 3.77396")
 note_label.pack()
 
 # Call the get_pixel_size function to retrieve the pixel size entered by the user
@@ -102,6 +103,11 @@ folder_path_label = tk.Label(window, text="Folder Path:")
 folder_path_label.pack()
 folder_path_entry = tk.Entry(window)
 folder_path_entry.pack()
+
+# Create the rectangle shape option
+rectangle_shape_var = tk.BooleanVar()
+rectangle_shape_checkbox = tk.Checkbutton(window, text="The image has a rectangle shape", variable=rectangle_shape_var)
+rectangle_shape_checkbox.pack()
 
 # Create the data collection option
 data_collection_var = tk.BooleanVar()
