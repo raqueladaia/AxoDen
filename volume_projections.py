@@ -89,7 +89,8 @@ def collect_data(folder_path, pixel_size, img_shape):
         fig.suptitle(f'Animal {animal} | {brain_area} | Threshold: {thr:.3f}', weight='bold')
         
         # Plot original image, binarized image and area of the original image
-        ax[0, 0].imshow(img, cmap='gray')
+        
+        ax[0, 0].imshow(img, cmap='gray', origin='lower')
         ax[0, 0].set_title('Original image in grayscale')
         ax[0, 0].set_xlabel('mm')
         ax[0, 0].set_ylabel('mm')
@@ -111,9 +112,9 @@ def collect_data(folder_path, pixel_size, img_shape):
         ax[1, 1].set_aspect('equal')  # Set aspect ratio to equal for circular pie chart
 
         # Transform x and y axes in ax[0] from pixels to mm
-        x_ax_pixels = np.arange(0, img.shape[1], 100)
+        x_ax_pixels = np.linspace(0, img.shape[1], 6)
         x_ax_mm = np.round(x_ax_pixels * pixel_size, decimals=1)
-        y_ax_pixels = np.arange(0, img.shape[0], 100)
+        y_ax_pixels = np.linspace(0, img.shape[0], 6)
         y_ax_mm = np.round(y_ax_pixels * pixel_size, decimals=1)
 
         for ax0 in [0, 1]:       

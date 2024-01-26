@@ -92,7 +92,7 @@ pixel_size_entry.insert(tk.END, "0.75521")  # Set the default pixel size
 pixel_size_entry.pack()
 
 # Create note for user
-note_label = tk.Label(window, text="\nNote:\nThe default pixel size is for the 20x Objective.\nPlease change it according to the objective used.\n x4 Objective: 3.77396")
+note_label = tk.Label(window, text="\nNote:\nThe default pixel size is for the 20x Objective.\nPlease change it according to the objective used.\n\nx4 Objective: 3.77396\n")
 note_label.pack()
 
 # Call the get_pixel_size function to retrieve the pixel size entered by the user
