@@ -82,7 +82,7 @@ window = tk.Tk()
 window.title("Quantification of Projections")
 
 # Configure the window size
-window.geometry("300x400")  # Set the width and height of the window
+window.geometry("300x600")  # Set the width and height of the window
 
 # Create the pixel size input
 pixel_size_label = tk.Label(window, text="\n\nPixel Size (um):")
@@ -105,9 +105,15 @@ folder_path_entry = tk.Entry(window)
 folder_path_entry.pack()
 
 # Create the rectangle shape option
+rectangle_label = tk.Label(window, text="\nCheck the box\nif the image has a rectangular shape:")
+rectangle_label.pack()
 rectangle_shape_var = tk.BooleanVar()
-rectangle_shape_checkbox = tk.Checkbutton(window, text="The image has a rectangle shape", variable=rectangle_shape_var)
+rectangle_shape_checkbox = tk.Checkbutton(window, text="", variable=rectangle_shape_var)
 rectangle_shape_checkbox.pack()
+
+# Guide the user to select the options
+instructions_label = tk.Label(window, text="\nCheck the following boxes\naccording to what you want to do:")
+instructions_label.pack()
 
 # Create the data collection option
 data_collection_var = tk.BooleanVar()
@@ -119,6 +125,10 @@ data_analysis_var = tk.BooleanVar()
 data_analysis_checkbox = tk.Checkbutton(window, text="Data analysis and plotting", variable=data_analysis_var)
 data_analysis_checkbox.pack()
 
+# Create some space between the checkbox and the button
+space_label = tk.Label(window, text="\n")
+space_label.pack()
+
 # Create the run button
 run_button = tk.Button(window, text="Run Volume Projections", command=run_volume_projections)
 run_button.pack()
@@ -129,7 +139,7 @@ status_label.pack()
 
 # Create the close button
 close_button = tk.Button(window, text="Close", command=close_window)
-close_button.pack(side=tk.BOTTOM)
+close_button.place(relx=0.5, rely=1.0, anchor=tk.S, y=-20)
 
 # Start the GUI event loop
 window.mainloop()

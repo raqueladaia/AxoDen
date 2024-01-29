@@ -56,6 +56,7 @@ def collect_data(folder_path, pixel_size, img_shape):
     # Loop through all the images in the folder
     for filepath in file_list:
 
+        # Get the animal and brain area from the image name
         img_name = os.path.basename(filepath)
         animal = img_name.split('_')[0]
         brain_area = img_name.split('_')[1]
@@ -90,7 +91,7 @@ def collect_data(folder_path, pixel_size, img_shape):
         
         # Plot original image, binarized image and area of the original image
         
-        ax[0, 0].imshow(img, cmap='gray', origin='lower')
+        ax[0, 0].imshow(img, cmap='gray')
         ax[0, 0].set_title('Original image in grayscale')
         ax[0, 0].set_xlabel('mm')
         ax[0, 0].set_ylabel('mm')
@@ -102,6 +103,9 @@ def collect_data(folder_path, pixel_size, img_shape):
         ax[1, 0].set_title(f'Area original image: {area_image_mm:.2f} mm^2')
         ax[1, 0].set_xlabel('mm')
         ax[1, 0].set_ylabel('mm')
+        
+
+
         
         # Plot pie chart
         labels = ['White Pixels', 'Black Pixels']
@@ -124,7 +128,7 @@ def collect_data(folder_path, pixel_size, img_shape):
                 ax[ax0, ax1].set_xticks(x_ax_pixels)
                 ax[ax0, ax1].set_yticks(y_ax_pixels)
                 ax[ax0, ax1].set_xticklabels(x_ax_mm, rotation=45)
-                ax[ax0, ax1].set_yticklabels(y_ax_mm)
+                ax[ax0, ax1].set_yticklabels(y_ax_mm[::-1])  # Reverse the y-axis labels
                 ax[ax0, ax1].set_xlabel('mm')
                 ax[ax0, ax1].set_ylabel('mm')
 
@@ -148,6 +152,14 @@ def collect_data(folder_path, pixel_size, img_shape):
 
 
 def plot_data(folder_path, datatable):
+
+    
+    # Set fonts editable in Adobe Illustrator
+    plt.rcParams['pdf.fonttype'] = 42
+    plt.rcParams['ps.fonttype'] = 42
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.size'] = 14
+    plt.rcParams['font.sans-serif'] = 'Arial'
     
     # Create a figure with two subplots
     fig, ax = plt.subplots(1, 2, figsize=(15, 5))
@@ -179,7 +191,7 @@ def plot_data(folder_path, datatable):
         # Plot the scatter plot with round markers
         ax[0].scatter(np.repeat(i_brar, len(white_pixels)), white_pixels, edgecolors=color_bars, facecolors='white')
         ax[0].set_ylim(0, 100)
-        ax[0].set_ylabel('% White Pixels')
+        ax[0].set_ylabel("% of brain area receiving projections")
         ax[0].set_xticks(np.arange(0, len(brain_areas)))
         ax[0].set_xticklabels(brain_areas, rotation=45)
 
@@ -213,8 +225,9 @@ def plot_data(folder_path, datatable):
     del df
 
     # Save the figure
-    figure_name = 'projections_quantification.png'
+    figure_name = 'projections_quantification.pdf'
     figure_path = os.path.join(folder_path, figure_name)
+
     plt.savefig(figure_path, dpi=300)
     plt.close()
 
