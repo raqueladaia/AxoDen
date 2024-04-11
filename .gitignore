@@ -58,6 +58,7 @@ build/
 
 .venv/
 .env
+.pypirc
 
 *.spec
 .vscode/
