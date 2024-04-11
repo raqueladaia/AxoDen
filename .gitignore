@@ -59,3 +59,4 @@ build/
 .venv/
 
 *.spec
+.vscode/
