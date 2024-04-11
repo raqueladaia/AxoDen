@@ -57,6 +57,7 @@ dist/
 build/
 
 .venv/
+.env
 
 *.spec
 .vscode/
