@@ -2,7 +2,7 @@ import os
 import pandas as pd
 import tkinter as tk
 
-from volume_projections import collect_data, plot_data
+from axoden.volume_projections import collect_data, plot_summary_data
 
 
 # Function to get the pixel size entered by the user
@@ -54,7 +54,7 @@ def run_volume_projections():
             csv_file_path = os.path.join(folder_path, csv_files[0])
             table_data = pd.read_csv(csv_file_path)            
             # Plot the data using the table
-            plot_data(folder_path, table_data)
+            plot_summary_data(folder_path, table_data)
             update_status(status_label, "\n\nDone")
 
     # Check if both data collection and data analysis checkboxes are toggled
@@ -62,7 +62,7 @@ def run_volume_projections():
         update_status(status_label, "\n\nCollecting data...")
         table_data = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nData analysis and plotting...")
-        plot_data(folder_path, table_data)
+        plot_summary_data(folder_path, table_data)
         update_status(status_label, "\n\nDone")
 
     # Enable the run button
