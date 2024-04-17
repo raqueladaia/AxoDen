@@ -174,17 +174,17 @@ def binarize_image(image, threshold):
     binary_image = np.where(image > threshold, 1, 0)
     return binary_image
 
-def count_pixels(image):
+def count_pixels(img):
     """Count the number of white and black pixels in the image."""
-    white_pixels = np.sum(image)
-    black_pixels = np.sum(1 - image)
+    white_pixels = np.sum(img)
+    black_pixels = np.sum(1 - img)
     all_pixels = white_pixels + black_pixels
     return [white_pixels, black_pixels, all_pixels]
 
 def compute_area(img, pixel_size):
     """Compute the area of the image and the area of the white and black pixels."""
     counts = count_pixels(img)
-    [w, b, all] = [c * pixel_size**2 for c in counts]
+    [w, b, all] = [c * (pixel_size**2) for c in counts]
     return w, b, all
 
 def compute_threshold(img):
@@ -289,12 +289,15 @@ def collect_data(folder_path, pixel_size, img_shape):
         
         # Open the image, collect the mask, calculate threshold for binarization and binarize the image
         img, msk = collect_image_mask(filepath, img_shape)
-        thr = compute_threshold(img)
+        msk_bool = msk.astype(bool)
+        thr = compute_threshold(img[~msk_bool])
         img_bin = binarize_image(img, thr)
 
         # Calculate the number of white and black pixels of the pixels within the mask and the area they occupy
-        [w, b, all] = count_pixels(img_bin[~msk])
-        area_w, area_b, area_img = compute_area(img_bin[~msk], pixel_size)
+        [w, b, all] = count_pixels(img_bin[~msk_bool])
+        area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
+        area_image_um = area_img / 1000
+        del msk_bool
 
         # Append the information to the DataFrame for the image
         _temp_ = {'animal': animal, 
@@ -305,7 +308,8 @@ def collect_data(folder_path, pixel_size, img_shape):
                   'threshold': thr, 
                   'area_image': area_img,
                   'area_signal': area_w,
-                  'area_black': area_b}
+                  'area_black': area_b,
+                  'area_img_um': area_image_um}
         if np.sum(table_data.shape) == 0:
             table_data = pd.DataFrame(columns=_temp_.keys())
         table_data.loc[len(table_data)] = _temp_
@@ -325,7 +329,6 @@ def collect_data(folder_path, pixel_size, img_shape):
         
         # Generate control plot
         fig = plt.figure(figsize=(8, 8))
-        area_image_um = area_img / 1000
         fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
         info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
                     "sizes": [area_w, area_b],
@@ -345,53 +348,73 @@ def collect_data(folder_path, pixel_size, img_shape):
     table_data['percent_signal'] = table_data['pixels_signal'] / table_data['pixels_total'] * 100
 
     # Save dataframes as csv files
-    save_table(table_data, folderpath, 'projections_quantification.csv')
-    save_table(table_data_axis, folderpath, 'projections_quantification_axis.csv')
+    save_table(table_data, folder_path, 'projections_quantification.csv')
+    save_table(table_data_axis, folder_path, 'projections_quantification_axis.csv')
 
     return table_data, table_data_axis
 
 
-def plot_summary_data(folder_path, df):
+def plot_summary_data(folder_path, df_input):
 
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
 
-    # Create a figure with two subplots
-    fig, ax = plt.subplots(1, 2, figsize=(15, 5))
-    brain_areas = df['brain_area'].unique()
-    fig.suptitle('Projections Quantification', weight='bold')
+    # Collect project name
+    project_name = os.path.basename(folder_path)
 
-    # Set the color for the bars
+    # Create a figure with four subplots
+    fig, ax = plt.subplots(1, 4, figsize=(18, 5))
+    brain_areas = df_input['brain_area'].unique()
+    fig.suptitle(f'Project "{project_name}"\nData Summary', weight='bold')
+
+    # Set the color for the plots
     color_bars = 'royalblue'
+    color_scatter_in = 'white'
 
     # Create a dictionary with the animals per brain area
     dict_animals_brain_area = {}
+
+    # Define which columns to use for the plot
+    data_cols = ['percent_signal', 'area_img_um', 'threshold']
+    ylabel_dict = {'percent_signal': 'Innervation (%)',
+                   'area_img_um': 'Area (\u03bcm\u00b2)',
+                   'threshold': 'Pixel value'}
+    sublplot_titles = ['Percentage of innervation', 'Area of the brain region', 'Threshold for binarization']
     
     # Plot the bar plot with the mean and sem of the white pixels percentage
     for i_ba, br_ar in enumerate(brain_areas):
         
         # Get the data for the brain area
-        data = df[df['brain_area'] == br_ar]
-        vals = data['percent_signal']
-        vals_mean = np.mean(vals)
-        sem = np.std(vals) / np.sqrt(len(vals))
+        data = df_input[df_input['brain_area'] == br_ar]
 
+        # Iterate over the columns to plot
+        for i_col, col in enumerate(data_cols):
+            vals = data[col]
+            vals_mean = np.mean(vals)
+            sem = np.std(vals) / np.sqrt(len(vals))
+
+            # Plot the bar plot with the mean and sem
+            ax[i_col].bar(i_ba, vals_mean, color=color_bars, yerr=sem)
+
+            # Plot the scatter plot with round markers
+            ax[i_col].scatter(np.repeat(i_ba, len(vals)), vals, edgecolors=color_bars, facecolors=color_scatter_in)
+          
         # Fill the dictionary with the animals in the brain area
         dict_animals_brain_area[br_ar] = data['animal'].unique().tolist()
 
-        # Plot the bar plot with the mean and sem
-        ax[0].bar(i_ba, vals_mean, color=color_bars, yerr=sem)
-
-        # Plot the scatter plot with round markers
-        ax[0].scatter(np.repeat(i_ba, len(vals)), vals, edgecolors=color_bars, facecolors='white')
-
-    # Beautify
-    yval_max = np.ceil(ax[0].get_ylim()[1] / 10) * 10
-    ax[0].set_ylabel("% of brain area receiving projections")
-    ax[0].set_yticks(np.linspace(0, yval_max, 6))
-    ax[0].set_xticks(np.arange(0, len(brain_areas)))
-    ax[0].set_xticklabels(brain_areas, rotation=45)
-    ax[0].set_ylim(0, yval_max)
+    # Beautify data subplots
+    for i_col, col in enumerate(data_cols):
+        # Set the column name as the title
+        ax[i_col].set_title(sublplot_titles[i_col], weight='bold')
+        # Set the xticks and labels for each data column
+        ax[i_col].set_xticks(np.arange(0, len(brain_areas)))
+        ax[i_col].set_xticklabels(brain_areas, rotation=45)
+        # Set the y maximum value
+        yval_max = np.ceil(ax[i_col].get_ylim()[1] / 10) * 10
+        ax[i_col].set_yticks(np.linspace(0, yval_max, 6))
+        ax[i_col].set_ylim(0, yval_max)
+        # Set the y label
+        ax[i_col].set_ylabel(ylabel_dict[col])
 
     # Print the number of animals per brain area
     df = pd.DataFrame.from_dict(dict_animals_brain_area, orient='index')
@@ -399,26 +422,21 @@ def plot_summary_data(folder_path, df):
     df['animals'] = df['animals'].apply(lambda x: x.replace(', None', ''))  # Remove None values
     i_anim_col = df.columns.get_loc("animals")
     df = df.iloc[:, i_anim_col:]  # Remove columns 0 to the one with all the animals
-
-    # Replace the index with the values in the new column
     df['brain_area_with_animals'] = df.index + ' (N=' + df['animals'].apply(lambda x: str(x.count(',') + 1)) + ')'  # Count the number of animals
-    df = df.set_index(df['brain_area_with_animals'])
-    df = df.drop(columns=['brain_area_with_animals'])
+    df = df.set_index(df['brain_area_with_animals'])  # Replace the index with the values in the new column
+    df = df.drop(columns=['brain_area_with_animals'])  # Remove the column
+    df.columns = [''] * len(df.columns)  # Remove column
+    df.index.name = ''  # Remove index names
+    ax[-1].set_title('Animals per Brain Region', weight='bold')
+    ax[-1].axis('off')
+    ax[-1].text(0.05, 0.1, df.to_string(header=False), fontsize=9)
 
-    # Remove column and index names
-    df.columns = [''] * len(df.columns)
-    df.index.name = ''
-
-    ax[1].set_title('Animals per Brain Area')
-    ax[1].axis('off')
-    ax[1].text(0.05, 0.1, df.to_string(header=False), fontsize=9)
-
-    # Set the layout
+    # Set the layout & despine
     plt.tight_layout()
-    sns.despine(fig=fig, ax=ax[0], top=True, right=True)
+    sns.despine(fig=fig, top=True, right=True)
 
     # Delete the DataFrame
-    del df
+    del df, df_input
 
     # Save the figure
     figure_name = 'projections_quantification.pdf'
@@ -426,17 +444,118 @@ def plot_summary_data(folder_path, df):
     plt.savefig(figure_path, dpi=300)
     plt.close()
 
+def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
+    
+    # Set fonts editable in Adobe Illustrator
+    make_figures_pdf_editable()
+
+    # Collect project name
+    project_name = os.path.basename(folderpath)
+
+    # Get the unique brain areas
+    brain_areas = df['brain_area'].unique()
+    n_ba = len(brain_areas)
+
+    if n_ba > 5:
+        n_y_ticks = 2
+        size_tick_lbl = 8
+    else:
+        n_y_ticks = 4
+        size_tick_lbl = 10
+
+    # Define which columns to use for the plot
+    data_cols = ['signal_bin_x_ax', 'signal_bin_y_ax']
+    subplot_titles = ['Medio-Lateral axis', 'Dorso-Ventral axis']
+
+    # Create a figure with four subplots
+    fig, ax = plt.subplots(n_ba, len(data_cols), figsize=(16, 9))
+    fig.suptitle(f'Project "{project_name}"\nSignal Intensity Along the Medio-Lateral and Dorso-Ventral Axes', weight='bold')
+
+    # Set the color for the plots
+    color_bars = 'royalblue'
+    
+    # Plot the bar plot with the mean and sem of the white pixels percentage
+    for i_ba, br_ar in enumerate(brain_areas):
+        
+        # Get the data for the brain area
+        data = df[df['brain_area'] == br_ar]
+
+        # Iterate over the columns to plot
+        for i_col, col in enumerate(data_cols):
+
+            # Collect data arrays
+            vals = data[col].tolist()
+            n_vals = len(vals)
+            # Pad the shortest array(s) with nans
+            max_len = np.max([len(v) for v in vals])
+            val_eq_size = []
+            for v in vals:
+                if len(v) < max_len:
+                    v = np.concatenate([v, np.zeros(max_len - len(v)) + np.nan])
+                val_eq_size.append(v)
+            vals = np.array(val_eq_size)
+            del val_eq_size
+            # Compute the mean and sem
+            vals_mean = np.nanmean(vals, axis=0)
+            sem = np.nanstd(vals, axis=0) / np.sqrt(n_vals)
+
+            # Generate the x axis values
+            n_pts = vals_mean.shape[0]
+            x_ax = np.arange(0, n_pts, 1)
+            x_ax_ticks = np.round(np.linspace(0, n_pts, 10), 1)
+            x_ax_labels = np.round(x_ax_ticks * pixel_size, 1)
+            # Plot the values of each animal
+            ax[i_ba, i_col].plot(x_ax, vals.T, color='grey', alpha=0.5, linewidth=0.7)
+            # Plot the bar plot with the mean and sem
+            ax[i_ba, i_col].plot(x_ax, vals_mean, color=color_bars, linewidth=1.5)
+            ax[i_ba, i_col].fill_between(x_ax, vals_mean - sem, vals_mean + sem, color=color_bars, alpha=0.2)
+            
+            # Beautify data subplots
+            ax[i_ba, i_col].margins(0)
+            ax[i_ba, i_col].set_xticks(x_ax_ticks)
+            ax[i_ba, i_col].set_xticklabels(x_ax_labels, fontsize=size_tick_lbl)
+            # Set the x label at the bottom
+            if i_ba == n_ba - 1:
+                ax[i_ba, i_col].set_xlabel(f'{subplot_titles[i_col]} (\u03bcm)', weight='bold')
+            # Name the y axis as the brain area
+            if i_col == 0:
+                ax[i_ba, i_col].set_ylabel(f'{br_ar}', weight='bold', rotation=0, labelpad=20, ha='right')
+            # Set the y maximum value
+            yval_max = np.ceil(ax[i_ba, i_col].get_ylim()[1] / 10) * 10
+            yticks = np.linspace(0, yval_max, n_y_ticks)
+            ax[i_ba, i_col].set_yticks(yticks)
+            ax[i_ba, i_col].set_yticklabels(yticks, fontsize=size_tick_lbl)
+            ax[i_ba, i_col].set_ylim(0, yval_max)
+    
+    # Set the layout & despine
+    sns.despine(fig=fig, top=True, right=True)
+    plt.subplots_adjust(top=0.92, bottom=0.05, hspace=0.5, wspace=0.2)
+
+    # Save the figure
+    figure_name = 'projections_quantification_along_axis.pdf'
+    figure_path = os.path.join(folderpath, figure_name)
+    if os.path.exists(figure_path):
+        os.remove(figure_path)
+    plt.savefig(figure_path, dpi=300)
+    plt.close()
+
+    
 
 
 if __name__ == '__main__':
         
     pixel_size = 0.75521  # um, based on 20x objective and the printed table next to the HALO PC
-    folderpath = r"S:\Shared\custom_data_analysis\volume_projections\test_dataset"
+    # folderpath = r"S:\Shared\custom_data_analysis\volume_projections\test_dataset"
     # folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Manuscripts\2024_axon_quantification\fig3_compre_fluorophores\quantification_GFP"
+    folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Projects\2023_ACC_project\projections_cropped_images\done"
     is_image_rectangle = False
 
     # Collect the data and save it as a csv file
-    quant_projections, _ = collect_data(folderpath, pixel_size, is_image_rectangle)
+    quant_projections, quant_along_axis = collect_data(folderpath, pixel_size, is_image_rectangle)
 
-    # Plot the data
+    # Plot the summary data
     plot_summary_data(folderpath, quant_projections)
+
+    # Plot the average of the signal intensity along the x and y axis
+    plot_signal_intensity_along_axis(folderpath, quant_along_axis, pixel_size)
+
