@@ -354,13 +354,23 @@ def collect_data(folder_path, pixel_size, img_shape):
     return table_data, table_data_axis
 
 
-def plot_summary_data(folder_path, df_input):
+def write_summary_data_plot(folder_path, df_input):
+    # Collect project name
+    project_name = os.path.basename(folder_path)
+
+    fig = plot_summary_data(df_input, project_name)
+
+    # Save the figure
+    figure_name = 'projections_quantification.pdf'
+    figure_path = os.path.join(folder_path, figure_name)
+    fig.savefig(figure_path, dpi=300)
+    plt.close()
+
+
+def plot_summary_data(df_input, project_name):
 
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
-
-    # Collect project name
-    project_name = os.path.basename(folder_path)
 
     # Create a figure with four subplots
     fig, ax = plt.subplots(1, 4, figsize=(18, 5))
@@ -437,20 +447,27 @@ def plot_summary_data(folder_path, df_input):
 
     # Delete the DataFrame
     del df, df_input
+    return fig
 
-    # Save the figure
-    figure_name = 'projections_quantification.pdf'
-    figure_path = os.path.join(folder_path, figure_name)
-    plt.savefig(figure_path, dpi=300)
-    plt.close()
 
-def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
-    
-    # Set fonts editable in Adobe Illustrator
-    make_figures_pdf_editable()
 
+def write_signal_intensity_along_axis_plot(folderpath, df, pixel_size):
     # Collect project name
     project_name = os.path.basename(folderpath)
+    fig = plot_signal_intensity_along_axis(project_name, df, pixel_size)
+
+    # Save the figure
+    figure_name = 'projections_quantification_along_axis.pdf'
+    figure_path = os.path.join(folderpath, figure_name)
+    if os.path.exists(figure_path):
+        os.remove(figure_path)
+    fig.savefig(figure_path, dpi=300)
+    plt.close()
+
+    
+def plot_signal_intensity_along_axis(project_name, df, pixel_size):
+    # Set fonts editable in Adobe Illustrator
+    make_figures_pdf_editable()
 
     # Get the unique brain areas
     brain_areas = df['brain_area'].unique()
@@ -531,15 +548,8 @@ def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
     sns.despine(fig=fig, top=True, right=True)
     plt.subplots_adjust(top=0.92, bottom=0.05, hspace=0.5, wspace=0.2)
 
-    # Save the figure
-    figure_name = 'projections_quantification_along_axis.pdf'
-    figure_path = os.path.join(folderpath, figure_name)
-    if os.path.exists(figure_path):
-        os.remove(figure_path)
-    plt.savefig(figure_path, dpi=300)
-    plt.close()
+    return fig
 
-    
 
 
 if __name__ == '__main__':
@@ -554,8 +564,8 @@ if __name__ == '__main__':
     quant_projections, quant_along_axis = collect_data(folderpath, pixel_size, is_image_rectangle)
 
     # Plot the summary data
-    plot_summary_data(folderpath, quant_projections)
+    write_summary_data_plot(folderpath, quant_projections)
 
     # Plot the average of the signal intensity along the x and y axis
-    plot_signal_intensity_along_axis(folderpath, quant_along_axis, pixel_size)
+    write_signal_intensity_along_axis_plot(folderpath, quant_along_axis, pixel_size)
 

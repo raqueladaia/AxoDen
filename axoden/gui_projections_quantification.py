@@ -6,7 +6,7 @@ import pandas as pd
 import tkinter as tk
 
 # Import the functions from the volume_projections.py file
-from volume_projections import collect_data, plot_summary_data, plot_signal_intensity_along_axis
+from volume_projections import collect_data, write_summary_data_plot, write_signal_intensity_along_axis_plot
 
 # Function to get the pixel size entered by the user
 def get_pixel_size():
@@ -68,7 +68,7 @@ def run_volume_projections():
         table_data = open_summary_csv_file(folder_path, status_label, "quantification.csv")
         # Plot the data using the table
         update_status(status_label, "\n\nPlotting Summary Data...")
-        plot_summary_data(folder_path, table_data)
+        write_summary_data_plot(folder_path, table_data)
         update_status(status_label, "\n\nDone")
 
     # Check if ONLY summary axis checkbox is toggled
@@ -77,7 +77,7 @@ def run_volume_projections():
         table_data = open_summary_csv_file(folder_path, status_label, "axis.csv")
         # Plot the data using the table
         update_status(status_label, "\n\nPlotting Summary Axis Data...")
-        plot_signal_intensity_along_axis(folder_path, table_data, pixel_size)
+        write_signal_intensity_along_axis_plot(folder_path, table_data, pixel_size)
         update_status(status_label, "\n\nDone")
     
     # Check if summary data and summary axes checkboxes are toggled
@@ -87,9 +87,9 @@ def run_volume_projections():
         table_data_axes = open_summary_csv_file(folder_path, status_label, "axis.csv")
         # Plot the data using the tables
         update_status(status_label, "\n\nPlotting Summary Data...")
-        plot_summary_data(folder_path, table_data)
+        write_summary_data_plot(folder_path, table_data)
         update_status(status_label, "\n\nPlotted Summary Data\nPlotting Summary Axis Data...")
-        plot_signal_intensity_along_axis(folder_path, table_data_axes, pixel_size)
+        write_signal_intensity_along_axis_plot(folder_path, table_data_axes, pixel_size)
         update_status(status_label, "\n\nDone")
 
     # Check if both data collection and summary data checkboxes are toggled
@@ -97,7 +97,7 @@ def run_volume_projections():
         update_status(status_label, "\n\nCollecting data...")
         table_data, _ = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nPlotting Summary Data...")
-        plot_summary_data(folder_path, table_data)
+        write_summary_data_plot(folder_path, table_data)
         update_status(status_label, "\n\nDone")
 
     # Check if summary axes checkbox and summary data checkboxes are toggled
@@ -105,7 +105,7 @@ def run_volume_projections():
         update_status(status_label, "\n\nCollecting data...")
         _,  table_data = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nPlotting Summary Axis Data...")
-        plot_signal_intensity_along_axis(folder_path, table_data, pixel_size)
+        write_signal_intensity_along_axis_plot(folder_path, table_data, pixel_size)
         update_status(status_label, "\n\nDone")
 
     # Check if ALL checkboxes are toggled
@@ -113,9 +113,9 @@ def run_volume_projections():
         update_status(status_label, "\n\nCollecting data...")
         table_data, table_data_axes = collect_data(folder_path, pixel_size, shape_rectangle)
         update_status(status_label, "\n\nPlotting Summary Data...")
-        plot_summary_data(folder_path, table_data)
+        write_summary_data_plot(folder_path, table_data)
         update_status(status_label, "\n\nPlotted Summary Data\nPlotting Summary Axis Data...")
-        plot_signal_intensity_along_axis(folder_path, table_data_axes, pixel_size)
+        write_signal_intensity_along_axis_plot(folder_path, table_data_axes, pixel_size)
         update_status(status_label, "\n\nDone")
     
     # Enable the run button
