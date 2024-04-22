@@ -11,7 +11,18 @@ from typing import Iterable
 
 from matplotlib import pyplot as plt
 
+import sys
+if os.getcwd() not in sys.path:
+    # print('appending path')
+    sys.path.append(os.getcwd())
+
+# print(os.getcwd())
+# print(os.getenv('PYTHONPATH'))
+# print(sys.path)
+
+
 from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
+# from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
 from axoden.volume_projections import compute_area, collect_info_from_filename, intensity_along_axis, generate_control_plot
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis
 
@@ -274,8 +285,9 @@ def axo_den_app():
         st.download_button("Download plots as pdf", st.session_state.ctrl_plots_pdf, "control_plots.pdf")
 
 
-st.set_page_config(
-    page_title="Axoden App",
-    page_icon="📊️"
-)
-axo_den_app()
+if __name__ == "__main__":
+    st.set_page_config(
+        page_title="Axoden App",
+        page_icon="📊️"
+    )
+    axo_den_app()
