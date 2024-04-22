@@ -197,9 +197,14 @@ def axo_den_app():
     if 'table_data_axis' not in st.session_state:
         st.session_state.table_data_axis = None
 
-
     st.title("AxoDen")
 
+    with st.container(border=True):
+        st.write("If you're new to AxoDen, see the tutorial and learn how to use AxoDen:")
+        st.page_link("pages/2_❔️_Tutorial_&_How_To.py", label="Tutorial: How To Use AxoDen", icon="❔️")
+
+        st.write("If you use the app for your research, cite it using the following:")
+        st.page_link("pages/3_📖️_Cite_Axoden.py", label="Cite AxoDen", icon="📖️")
 
     st.header("Input")
     pixel_size = st.number_input("Pixel Size (um):", value=DEFAULT_PIXEL_SIZE, format='%f',)  # Set the pixel size
@@ -278,6 +283,3 @@ st.set_page_config(
     page_icon="📊️"
 )
 axo_den_app()
-
-# st.page_link("pages/how_to.py", label="Tutorial: How To Use AxoDen", icon="❔️")
-# st.page_link("pages/cite.py", label="Cite", icon="📖️")

@@ -10,11 +10,11 @@ def cite_app():
         # Citing AxoDen
         If you use this app in your research, cite it as follows:
         ```
-            Some
-            Citation
-            Here
+        Some
+        Citation
+        Here
         ```
-        TODO: add full citation
+        TODO: add full citation in different formats
     ''')
 
 cite_app()
