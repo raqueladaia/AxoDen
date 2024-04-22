@@ -22,7 +22,6 @@ if os.getcwd() not in sys.path:
 
 
 from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
-# from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
 from axoden.volume_projections import compute_area, collect_info_from_filename, intensity_along_axis, generate_control_plot
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis
 
