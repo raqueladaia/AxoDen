@@ -16,7 +16,6 @@ from streamlit_pdf_viewer import pdf_viewer
 
 import sys
 if os.getcwd() not in sys.path:
-    # print('appending path')
     sys.path.append(os.getcwd())
 
 from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
@@ -347,13 +346,13 @@ def axo_den_app():
                         with tab_fig_nr:
                             # pdf_figure = pages2pdf([figures[i]])
                             pdf_figure = pdf2stream(figures[i]).getvalue()
-                            pdf_viewer(pdf_figure)
+                            pdf_viewer(pdf_figure, key=f"{brain_region}_{i}")
                             # st.image(pdf_figure)
                             # st.pyplot(figures[i])
                 else:
                     # pdf_figure = pages2pdf([figures[0]])
                     pdf_figure = pdf2stream(figures[0]).getvalue()
-                    pdf_viewer(pdf_figure)
+                    pdf_viewer(pdf_figure, key=brain_region)
                     # st.image(pdf_figure)
                     # st.pyplot(figures[0])
 

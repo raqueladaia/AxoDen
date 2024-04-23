@@ -19,6 +19,8 @@ def intensity_along_axis(img, ax=None):
         s = np.nansum(img, axis=1) # Sum along the y axis
     elif ax is None:
         s = (np.nansum(img, axis=0), np.nansum(img, axis=1))  # Sum along the x and y axis
+    else:
+        raise ValueError(f"Expected argument ax to be one of 'x' or 'y' or None, but received '{ax}'")
     return s
 
 def remove_spines_plot(ax, loc=['all']):
@@ -38,6 +40,8 @@ def remove_ticks_plot(ax, loc='all'):
         ax.set_xticks([])
     elif loc == 'y':
         ax.set_yticks([])
+    else:
+        raise ValueError(f"Expected argument 'loc' to be one of 'all', 'x', 'y', but received '{loc}'")
 
 def plot_intensity_along_axis(ax, x, y, loc):
     if loc == 'y':
