@@ -57,10 +57,10 @@ def get_brain_regions(raw_files) -> Iterable[str]:
 
 # @st.cache_data
 def process_image_single(raw_image, pixel_size, is_masked):
-    cache_key = (raw_image.name, pixel_size, is_masked) 
+    cache_key = (raw_image.file_id, pixel_size, is_masked) 
     if cache_key in st.session_state.figure_cache:
         logger.info(f'process_image_single found cache for {cache_key}')
-        return st.session_state.figure_cache[(raw_image.name, pixel_size, is_masked)]
+        return st.session_state.figure_cache[cache_key]
 
     animal, brain_area = collect_info_from_filename(raw_image.name)
 
@@ -77,7 +77,7 @@ def process_image_single(raw_image, pixel_size, is_masked):
         'animal': animal,
         'brain_area': brain_area,
         'file_name': raw_image.name
-    }
+    }  # FIXME: check if meta info still needed with my own custom caching solution
 
     # Append the information to the DataFrame for the image
     _temp_ = {'animal': animal, 
@@ -111,7 +111,7 @@ def process_image_single(raw_image, pixel_size, is_masked):
     pdf_fig = pages2pdf([pdf_fig])
     plt.close(fig)
 
-    st.session_state.figure_cache[(raw_image.name, pixel_size, is_masked)] = (pdf_fig, info, _temp_, _temp_axis_)
+    st.session_state.figure_cache[(raw_image.file_id, pixel_size, is_masked)] = (pdf_fig, info, _temp_, _temp_axis_)
     logger.info(f'process_image_single created cache for {cache_key}')
 
     return pdf_fig, info, _temp_, _temp_axis_
@@ -347,7 +347,7 @@ def axo_den_app():
                             # pdf_figure = pages2pdf([figures[i]])
                             pdf_figure = pdf2stream(figures[i]).getvalue()
                             pdf_viewer(pdf_figure, key=f"{brain_region}_{i}")
-                            logging.info(f"==== setting up pdf_viewer with key {brain_region}_{i}")
+                            # logging.info(f"==== setting up pdf_viewer with key {brain_region}_{i}")
                             # st.image(pdf_figure)
                             # st.pyplot(figures[i])
                 else:
