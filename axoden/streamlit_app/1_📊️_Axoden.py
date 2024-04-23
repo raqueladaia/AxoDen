@@ -347,6 +347,7 @@ def axo_den_app():
                             # pdf_figure = pages2pdf([figures[i]])
                             pdf_figure = pdf2stream(figures[i]).getvalue()
                             pdf_viewer(pdf_figure, key=f"{brain_region}_{i}")
+                            logging.info(f"==== setting up pdf_viewer with key {brain_region}_{i}")
                             # st.image(pdf_figure)
                             # st.pyplot(figures[i])
                 else:

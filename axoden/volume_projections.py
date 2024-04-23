@@ -527,7 +527,7 @@ def plot_signal_intensity_along_axis(project_name, df, pixel_size):
             x_ax_ticks = np.round(np.linspace(0, n_pts, 10), 1)
             x_ax_labels = np.round(x_ax_ticks * pixel_size, 1)
             # Plot the values of each animal
-            ax[i_ba, i_col].plot(x_ax, vals.T, color='grey', alpha=0.5, linewidth=0.7)
+            ax[i_ba, i_col].plot(x_ax, vals.T, color='grey', alpha=0.5, linewidth=0.7) # FIXME: crashes with only a single animal, need to test
             # Plot the bar plot with the mean and sem
             ax[i_ba, i_col].plot(x_ax, vals_mean, color=color_bars, linewidth=1.5)
             ax[i_ba, i_col].fill_between(x_ax, vals_mean - sem, vals_mean + sem, color=color_bars, alpha=0.2)
