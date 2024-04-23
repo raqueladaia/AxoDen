@@ -121,8 +121,6 @@ def run_volume_projections():
     # Enable the run button
     run_button.config(state=tk.NORMAL)
 
-
-
 # Function to close the window
 def close_window():
     window.destroy()

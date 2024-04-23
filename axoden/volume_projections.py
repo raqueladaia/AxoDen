@@ -2,6 +2,7 @@
 import os
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from PIL import Image
 # Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
@@ -9,6 +10,8 @@ from skimage.filters import threshold_otsu
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
+
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 
 def intensity_along_axis(img, ax=None):
@@ -130,30 +133,40 @@ def get_tif_files(folder_path):
 
 def collect_info_from_filename(filename):
     img_name = os.path.basename(filename)
-    img_name = img_name.split('.')[0]
-    animal = img_name.split('_')[0]
-    brain_area = img_name.split('_')[1]
+    img_name, _ = os.path.splitext(img_name)
+    
+    # img_name = img_name.split('.')[0]
+    name_parts = img_name.split('_')
+    if len(name_parts) < 2:
+        raise ValueError(
+            "Expected filename to include at least one '_' character to split animal from brain area, "
+            f"e.g. 'animal_brainarea.tif', but received the file name '{filename}'"
+        )
+    animal = name_parts[0]
+    brain_area = name_parts[1]
     return animal, brain_area
 
 def open_tif_image(img_path):
-    return Image.open(img_path)
+    return Image.open(img_path)  # works well also with Uploaded image
 
-def generate_mask(img, shape_rec):
-    """Generate a mask for the image provided."""
-    # For rectangular images
-    if shape_rec:    
-        mask = np.full_like(img, False)
-        if len(np.array(img).shape) == 3:
-            mask = mask[:, :, 0]
-        else:
-            mask = mask
-    # For non-rectangular images
-    if not shape_rec:
-        image_matrix = np.array(img)
-        if len(np.array(img).shape) == 3:
+def generate_background_mask(img, is_masked):
+    """Generate a background mask for the image provided."""
+
+    image_matrix = np.array(img)
+    
+    # For non-masked images
+    if not is_masked:
+        mask = np.zeros(image_matrix.shape[0:2], dtype='bool')
+
+    # For masked images
+    else:
+        if image_matrix.ndim == 3:
             mask = np.all(image_matrix == [0, 0, 0], axis=-1)
-        elif len(np.array(img).shape) == 2:
-            mask = np.all(image_matrix == [0, 0], axis=-1)
+        elif image_matrix.ndim == 2:
+            mask = image_matrix == 0
+        else:
+            raise ValueError(f"Expected image of dimension 2 or 3, but reiceived shape {image_matrix.shape}")
+
     return mask
 
 def convert_image_to_gray(img):
@@ -166,7 +179,7 @@ def collect_image_mask(img_path, img_rectangle_shape):
     """Open the image and cut it to the area that contains tissue."""
     img = open_tif_image(img_path)
     # Find the area of the image that cotains tissue
-    mask = generate_mask(img, img_rectangle_shape)
+    mask = generate_background_mask(img, not img_rectangle_shape)
     # Convert image to grayscale
     image_gray = convert_image_to_gray(img)
     # Cut the image to the area that contains tissue
@@ -180,6 +193,16 @@ def binarize_image(image, threshold):
 
 def count_pixels(img):
     """Count the number of white and black pixels in the image."""
+
+    # make sure the image is binarized and only contains black (0) and white (1) pixels
+    # otherwise this function will not behave properly!
+    unique_values = np.unique(img)
+    if not (
+        len(unique_values) == 2 and
+        np.all(np.unique(img) == [0, 1])
+    ):
+        raise ValueError(f'Expected a binarized image with only zeros and ones, but received values {unique_values}')
+
     white_pixels = np.sum(img)
     black_pixels = np.sum(1 - img)
     all_pixels = white_pixels + black_pixels
@@ -257,7 +280,54 @@ def generate_control_plot(img, img_bin, msk, pixel_size, info_pie):
     ax_pie.set_aspect('equal')
     # Add a line to the pie chart
     ax_pie.add_line(plt.Line2D([0.5, 0.5], [0.5, 0.5], color='black', linewidth=1))
-    
+
+
+def process_image(
+    file_name: str | UploadedFile,
+    is_masked: bool,
+    pixel_size: float,
+    animal: str,
+    brain_area: str,
+):
+    img, msk = collect_image_mask(file_name, is_masked)
+    msk_bool = msk.astype(bool)
+    thr = compute_threshold(img[~msk_bool])
+    img_bin = binarize_image(img, thr)
+
+    [w, b, all] = count_pixels(img_bin[~msk_bool])
+    area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
+    area_image_um = area_img / 1000  # TODO: why / 1000? the pixel size is in um, so the area shoud be in um^2 already
+
+    # Append the information to the DataFrame for the image
+    _temp_ = {'animal': animal, 
+                'brain_area': brain_area, 
+                'pixels_signal': w, 
+                'pixels_black': b, 
+                'pixels_total': all,
+                'threshold': thr, 
+                'area_image': area_img,
+                'area_signal': area_w,
+                'area_black': area_b,
+                'area_img_um': area_image_um}
+
+    # Append the information to the DataFrame for the axis
+    _temp_axis_ = {'animal': animal,
+                    'brain_area': brain_area,
+                    'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
+                    'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
+                    'signal_gray_x_ax': intensity_along_axis(img, 'x'),
+                    'signal_gray_y_ax': intensity_along_axis(img, 'y')}
+
+    # Generate control plot
+    fig = plt.figure(figsize=(8, 8))
+    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
+    info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
+                "sizes": [area_w, area_b],
+                "colors": ['white', 'grey']}
+    generate_control_plot(img, img_bin, msk, pixel_size, info_pie)
+
+    return fig, _temp_, _temp_axis_
+
 
 def collect_data(folder_path, pixel_size, img_shape):
     """
@@ -283,71 +353,29 @@ def collect_data(folder_path, pixel_size, img_shape):
     n_images = len(file_list)
 
     # Loop through all the images in the folder
-    for i, filepath in enumerate(file_list):
-
-        # Print the progression every 5th iteration
-        if int(i+1) % 5 == 0:
-            print(f"Processing image {int(i+1)} out of {n_images}")
-
-        # Get the animal and brain area from the image name
+    for filepath in tqdm(file_list, desc="Processing images"):
         animal, brain_area = collect_info_from_filename(filepath)
-        
-        # Open the image, collect the mask, calculate threshold for binarization and binarize the image
-        img, msk = collect_image_mask(filepath, img_shape)
-        msk_bool = msk.astype(bool)
-        thr = compute_threshold(img[~msk_bool])
-        img_bin = binarize_image(img, thr)
+        fig, _temp_, _temp_axis_ = process_image(
+            filepath,
+            is_masked=img_shape,
+            pixel_size=pixel_size,
+            animal=animal,
+            brain_area=brain_area,
+        )
 
-        # Calculate the number of white and black pixels of the pixels within the mask and the area they occupy
-        [w, b, all] = count_pixels(img_bin[~msk_bool])
-        area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
-        area_image_um = area_img / 1000
-        del msk_bool
-
-        # Append the information to the DataFrame for the image
-        _temp_ = {'animal': animal, 
-                  'brain_area': brain_area, 
-                  'pixels_signal': w, 
-                  'pixels_black': b, 
-                  'pixels_total': all,
-                  'threshold': thr, 
-                  'area_image': area_img,
-                  'area_signal': area_w,
-                  'area_black': area_b,
-                  'area_img_um': area_image_um}
         if np.sum(table_data.shape) == 0:
             table_data = pd.DataFrame(columns=_temp_.keys())
         table_data.loc[len(table_data)] = _temp_
 
-        # Append the information to the DataFrame for the axis
-        _temp_axis_ = {'animal': animal,
-                       'brain_area': brain_area,
-                       'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
-                       'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
-                       'signal_gray_x_ax': intensity_along_axis(img, 'x'),
-                       'signal_gray_y_ax': intensity_along_axis(img, 'y')}
         if np.sum(table_data_axis.shape) == 0:
             table_data_axis = pd.DataFrame(columns=_temp_axis_.keys())
         table_data_axis.loc[len(table_data_axis)] = _temp_axis_
-        
-        del _temp_, _temp_axis_
-        
-        # Generate control plot
-        fig = plt.figure(figsize=(8, 8))
-        fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
-        info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
-                    "sizes": [area_w, area_b],
-                    "colors": ['white', 'grey']}
-        generate_control_plot(img, img_bin, msk, pixel_size, info_pie)
         
         # Save control plot
         figure_name = f'{animal}_{brain_area}_control_plot.pdf'
         figure_path = os.path.join(folder_path, 'control_plots', figure_name)
         plt.savefig(figure_path, dpi=300)        
         plt.close(fig)
-        
-    print("Processing images finished")
-
 
     # Compute the percentage of white pixels
     table_data['percent_signal'] = table_data['pixels_signal'] / table_data['pixels_total'] * 100
