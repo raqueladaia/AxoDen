@@ -168,7 +168,7 @@ pixel_size = get_pixel_size()
 folder_path_label = tk.Label(window, text="Input Folder:")
 folder_path_label.pack()
 folder_path_entry = tk.Entry(window, width=40)
-folder_path_entry.pack()
+folder_path_entry.pack(padx=20)
 
 # Create the folder path input
 ask_folder_button = tk.Button(window, text="Select Folder", command=ask_folder)
@@ -181,7 +181,7 @@ output_folder_path_entry = tk.Entry(window, width=40)
 output_folder_path_entry.pack()
 
 # Create the masked option
-is_masked_label = tk.Label(window, text="\nCheck the box\nif the image was masked\nand has values of 0 as background:")
+is_masked_label = tk.Label(window, text="\nCheck the box\nif images are masked and have\nvalues of 0 where there is no signal:")
 is_masked_label.pack()
 is_masked_var = tk.BooleanVar(value=True)
 is_masked_checkbox = tk.Checkbutton(window, text="", variable=is_masked_var)
@@ -215,12 +215,13 @@ run_button = tk.Button(window, text="Run Volume Projections", command=run_volume
 run_button.pack()
 
 # Create label to update the status of the program    
-status_label = tk.Label(window, text="\n\n")
-status_label.pack()  
+status_label = tk.Label(window, text="\n")
+status_label.pack()
 
 # Create the close button
 close_button = tk.Button(window, text="Close", command=close_window)
-close_button.place(relx=0.5, rely=1.0, anchor=tk.S, y=-20)
+# close_button.place(relx=0.5, rely=1.0, anchor=tk.S, y=-20)
+close_button.pack(pady=20)
 
 # Start the GUI event loop
 window.mainloop()

@@ -169,7 +169,7 @@ def axo_den_app():
         st.warning(f"This application is limited to using {MAX_IMAGES} images concurrently. You uploaded {len(raw_files)}, remaining images will not be used in the analysis!")
         raw_files = raw_files[:MAX_IMAGES]
 
-    is_masked = not st.checkbox("Images are masked (desired brain region are cropped out, backround is at value 0)", value=True, on_change=invalidate_figure_cache)
+    is_masked = st.checkbox("Images are masked (desired brain region are cropped out, backround is at value 0)", value=True, on_change=invalidate_figure_cache)
 
     (
         st.session_state.figures,
