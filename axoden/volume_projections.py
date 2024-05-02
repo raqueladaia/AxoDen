@@ -1,9 +1,11 @@
 # Import libraries
 import os
+import re
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
+from pathlib import Path
 
 # Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
@@ -149,6 +151,14 @@ def collect_info_from_filename(filename):
     return animal, brain_area
 
 def open_tif_image(img_path):
+    """Open a tif image.
+
+    Args:
+        img_path: A filename (string), os.PathLike object or a file object.
+    
+    Returns:
+        Image: A PIL Image object.
+    """
     return Image.open(img_path)  # works well also with Uploaded image
 
 def generate_background_mask(img, is_masked):
@@ -177,16 +187,26 @@ def convert_image_to_gray(img):
 def collect_within_mask(img, mask):
     return np.where(mask, np.nan, img)
 
-def collect_image_mask(img_path, img_rectangle_shape):
-    """Open the image and cut it to the area that contains tissue."""
+
+def collect_image_mask(img_path: any, is_masked: bool) -> tuple[np.ndarray, np.ndarray]:
+    """Open the image and cut it to the area that contains tissue.
+    
+    Args:
+        img_path: A filename (string), os.PathLike object or a file object.
+        is_masked: True if the image was masked and contains regions that are set to a value of 0.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: A tuple containing the cut image and the mask.
+    """
     img = open_tif_image(img_path)
     # Find the area of the image that cotains tissue
-    mask = generate_background_mask(img, not img_rectangle_shape)
+    mask = generate_background_mask(img, is_masked)
     # Convert image to grayscale
     image_gray = convert_image_to_gray(img)
     # Cut the image to the area that contains tissue
     cut_image = collect_within_mask(image_gray, mask)
     return cut_image, mask
+
 
 def binarize_image(image, threshold):
     """Binarize the image using the threshold provided."""
@@ -239,10 +259,53 @@ def prepare_axis_information(img, pixel_size):
     y_ax_um = np.round(y_ax_pixels * pixel_size, decimals=1)
     return [x_ax_pixels, x_ax_um, y_ax_pixels, y_ax_um]
 
-def save_table(df, folderpath, filename):
+
+def load_table(file_path: str):
+    """Load a table from a csv file.
+
+    Args:
+        file_path (str): Path to the csv file.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the data from the csv file.
+    """
+
+    def _string_to_ndarray(string_list):
+        """Convert a string representation of a list of numbers to a numpy array."""
+        return np.array([int(n) for n in re.findall('\d+', string_list)])  
+
+    col_types = {"animal": str, "brain_area": str}
+    table_data = pd.read_csv(file_path, dtype=col_types)
+    for col in table_data.columns:
+        if 'signal_bin' in col or 'signal_gray' in col:  # those are ndarray columns
+            table_data[col] = table_data[col].apply(_string_to_ndarray)
+    
+    return table_data
+
+
+def save_table(df: pd.DataFrame, folderpath: str, filename: str):
+    """Save a table to a csv file.
+
+    Args:
+        df (pd.DataFrame): DataFrame to save.
+        folderpath (str): Path to the folder where the file will be saved.
+        filename (str): Name of the file.
+    """
+    df = df.copy() # make sure the original dataframe is not modified
+
+    Path(folderpath).mkdir(parents=True, exist_ok=True)
+
     filepath = os.path.join(folderpath, filename)
     if os.path.exists(filepath):
         os.remove(filepath)
+
+    # convert numpy arrays to lists, otherwise the string representation is saved as [0, 5, 2, ..., 3, 4, 5]
+    # if filename.endswith('axis.csv'):
+    for col in df.columns:
+        if isinstance(df[col][0], np.ndarray):
+            # [1:-1] removes brackets
+            # .replace(' ', '') removes spaces to make file size smaller
+            df[col] = df[col].apply(lambda x: str(list(x.astype(int)))[1:-1].replace(' ', ''))
     df.to_csv(filepath, index=False)      
 
 
@@ -285,12 +348,25 @@ def generate_control_plot(img, img_bin, msk, pixel_size, info_pie):
 
 
 def process_image(
-    file_name: str | UploadedFile,
+    file_name: any,
     is_masked: bool,
     pixel_size: float,
-    animal: str,
-    brain_area: str,
-):
+    animal: str = "animal_1",
+    brain_area: str = "brain_area_1",
+) -> tuple[plt.Figure, dict, dict]:
+    """Process a single image and generate a control plot.
+
+    Args:
+        file_name (any): A filename (string), os.PathLike object or a file object.
+        is_masked (bool): True if the image was masked and contains regions that are set to a value of 0.
+        pixel_size (float): Pixel size in micrometers.
+        animal (str): Name of the animal. Default is "animal_1".
+        brain_area (str): Name of the brain area. Default is "brain_area_1".
+
+    Returns:
+        tuple[plt.Figure, dict, dict]: A tuple containing the figure,
+            the data for the image and the data with the axis projections.
+    """
     img, msk = collect_image_mask(file_name, is_masked)
     msk_bool = msk.astype(bool)
     thr = compute_threshold(img[~msk_bool])
@@ -301,7 +377,7 @@ def process_image(
     area_image_um = area_img / 1000  # TODO: why / 1000? the pixel size is in um, so the area shoud be in um^2 already
 
     # Append the information to the DataFrame for the image
-    _temp_ = {'animal': animal, 
+    data = {'animal': animal, 
                 'brain_area': brain_area, 
                 'pixels_signal': w, 
                 'pixels_black': b, 
@@ -313,7 +389,7 @@ def process_image(
                 'area_img_um': area_image_um}
 
     # Append the information to the DataFrame for the axis
-    _temp_axis_ = {'animal': animal,
+    axis_data = {'animal': animal,
                     'brain_area': brain_area,
                     'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
                     'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
@@ -328,14 +404,31 @@ def process_image(
                 "colors": ['white', 'grey']}
     generate_control_plot(img, img_bin, msk, pixel_size, info_pie)
 
-    return fig, _temp_, _temp_axis_
+    return fig, data, axis_data
 
 
-def collect_data(folder_path, pixel_size, img_shape):
+def process_folder(
+    folder_path: str,
+    pixel_size: float,
+    is_masked: bool,
+    output_folder: str = None,
+    save: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Process all the images in the folder provided and save the data as a csv files and figures if requested.
+    
+    Args:
+        folder_path (str): Path to the folder containing the images.
+        pixel_size (float): Pixel size in micrometers.
+        is_masked (bool): True if the image was masked and contains regions that are set to a value of 0.
+        output_folder (str): Path to the folder where the data will be saved. If not set, the input folder will be used.
+        save (bool): True if the control plots should be saved. Default is True.
+
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images and the data for the axis.
     """
-    Collect the data from the images in the folder provided and save it as a csv file.
-    Create a control plot for each image.
-    """
+
+    if not output_folder:
+        output_folder = folder_path
 
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
@@ -345,8 +438,9 @@ def collect_data(folder_path, pixel_size, img_shape):
     table_data_axis = pd.DataFrame()
     
     # Create a folder for the control plots if it doesn't exist in the folder path
-    if not os.path.exists(os.path.join(folder_path, 'control_plots')):
-        os.mkdir(os.path.join(folder_path, 'control_plots'))
+    control_plot_path = os.path.join(output_folder, 'control_plots')
+    if save:
+        Path(control_plot_path).mkdir(parents=True, exist_ok=True)
 
     # Create a list with all the tif files in the folder    
     file_list = get_tif_files(folder_path)
@@ -359,7 +453,7 @@ def collect_data(folder_path, pixel_size, img_shape):
         animal, brain_area = collect_info_from_filename(filepath)
         fig, _temp_, _temp_axis_ = process_image(
             filepath,
-            is_masked=img_shape,
+            is_masked=is_masked,
             pixel_size=pixel_size,
             animal=animal,
             brain_area=brain_area,
@@ -374,24 +468,36 @@ def collect_data(folder_path, pixel_size, img_shape):
         table_data_axis.loc[len(table_data_axis)] = _temp_axis_
         
         # Save control plot
-        figure_name = f'{animal}_{brain_area}_control_plot.pdf'
-        figure_path = os.path.join(folder_path, 'control_plots', figure_name)
-        plt.savefig(figure_path, dpi=300)        
+        if save:
+            figure_name = f'{animal}_{brain_area}_control_plot.pdf'
+            figure_path = os.path.join(control_plot_path, figure_name)
+            plt.savefig(figure_path, dpi=300)        
         plt.close(fig)
 
     # Compute the percentage of white pixels
     table_data['percent_signal'] = table_data['pixels_signal'] / table_data['pixels_total'] * 100
 
     # Save dataframes as csv files
-    save_table(table_data, folder_path, 'projections_quantification.csv')
-    save_table(table_data_axis, folder_path, 'projections_quantification_axis.csv')
+    if save:
+        save_table(table_data, output_folder, 'projections_quantification.csv')
+        save_table(table_data_axis, output_folder, 'projections_quantification_axis.csv')
 
     return table_data, table_data_axis
 
 
-def write_summary_data_plot(folder_path, df_input):
-    # Collect project name
-    project_name = os.path.basename(folder_path)
+def write_summary_data_plot(folder_path: str, df_input: pd.DataFrame, project_name: str = None):
+    """Write the summary data plot to a pdf file in the folder provided.
+    
+    Args:
+        folder_path (str): Path to the folder where the data will be saved.
+        df_input (pd.DataFrame): Dataframe with the data to plot.
+        project_name (str): Name of the project. If not set, it will be the name of the folder.
+    """
+
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+
+    if not project_name:
+        project_name = os.path.basename(folder_path)
 
     fig = plot_summary_data(df_input, project_name)
 
@@ -485,22 +591,43 @@ def plot_summary_data(df_input, project_name):
     return fig
 
 
+def write_signal_intensity_along_axis_plot(output_folder: str, df: pd.DataFrame, pixel_size: float, project_name: str = None):
+    """Write the signal intensity along the axis plot to a pdf file in the folder provided.
+    
+    Args:
+        folderpath (str): Path to the folder where the data will be saved.
+        df (pd.DataFrame): Dataframe with the axis data to plot.
+        pixel_size (float): Pixel size in micrometers.
+        project_name (str): Name of the project. If not set, it will be the name of the output folder.
+    """
 
-def write_signal_intensity_along_axis_plot(folderpath, df, pixel_size):
     # Collect project name
-    project_name = os.path.basename(folderpath)
+    if not project_name:
+        project_name = os.path.basename(output_folder)
+
     fig = plot_signal_intensity_along_axis(project_name, df, pixel_size)
 
     # Save the figure
     figure_name = 'projections_quantification_along_axis.pdf'
-    figure_path = os.path.join(folderpath, figure_name)
+    figure_path = os.path.join(output_folder, figure_name)
     if os.path.exists(figure_path):
         os.remove(figure_path)
     fig.savefig(figure_path, dpi=300)
     plt.close()
 
-    
-def plot_signal_intensity_along_axis(project_name, df, pixel_size):
+
+def plot_signal_intensity_along_axis(project_name: str, df: pd.DataFrame, pixel_size: float):
+    """Plot the signal intensity along the x and y axis of the images provided in the DataFrame.
+
+    Args:
+        project_name (str): Name of the project.
+        df (pd.DataFrame): DataFrame with the data to plot.
+        pixel_size (float): Pixel size in micrometers.
+
+    Returns:
+        plt.Figure: A figure with the signal intensity along the x and y axis.
+    """
+
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
 
@@ -596,7 +723,7 @@ if __name__ == '__main__':
     is_image_rectangle = False
 
     # Collect the data and save it as a csv file
-    quant_projections, quant_along_axis = collect_data(folderpath, pixel_size, is_image_rectangle)
+    quant_projections, quant_along_axis = process_folder(folderpath, pixel_size, is_image_rectangle)
 
     # Plot the summary data
     write_summary_data_plot(folderpath, quant_projections)
