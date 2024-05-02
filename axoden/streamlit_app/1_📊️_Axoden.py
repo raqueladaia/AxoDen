@@ -19,7 +19,7 @@ from axoden.volume_projections import collect_info_from_filename
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis, process_image
 from axoden.streamlit_app.pdf_utils import fig2pdfpage, fig2stream, pdf2stream, pages2pdf, join_pdfs
 
-MAX_IMAGES = 50  # TODO: decide on file upload limit
+MAX_IMAGES = 200  # TODO: decide on file upload limit
 DEFAULT_PIXEL_SIZE = 0.75521
 
 logger = logging.getLogger(__name__)
