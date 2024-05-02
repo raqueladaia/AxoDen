@@ -23,7 +23,7 @@ MAX_IMAGES = 50  # TODO: decide on file upload limit
 DEFAULT_PIXEL_SIZE = 0.75521
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.WARNING)
 
 
 def invalidate_figure_cache():

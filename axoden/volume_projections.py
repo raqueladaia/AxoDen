@@ -520,7 +520,7 @@ def plot_signal_intensity_along_axis(project_name, df, pixel_size):
     subplot_titles = ['Medio-Lateral axis', 'Dorso-Ventral axis']
 
     # Create a figure with four subplots
-    fig, ax = plt.subplots(n_ba, len(data_cols), figsize=(16, 9))
+    fig, ax = plt.subplots(n_ba, len(data_cols), figsize=(16, 9), squeeze=False)
     fig.suptitle(f'Project "{project_name}"\nSignal Intensity Along the Medio-Lateral and Dorso-Ventral Axes', weight='bold')
 
     # Set the color for the plots
