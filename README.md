@@ -115,12 +115,17 @@ Information about the project's license and any relevant terms.
     - how should we limit file sizes?
     - limit number of images
   - how many concurrent users? How can we test?
+  - what sample images to include
 - Pascal
   - deploy from raqueladaia/AxoDen --> organize call 1-2h
   - use release branch for this
   - how is the axoden pip package used? --> Pascal to propose
   - there should be a few simple examples: python -m axoden_gui? python -m axoden
-  - what sample images to include
+  - update README with instructions for
+    - streamlit use locally
+    - gui locally
+    - pip install
+    - how to use axoden functionality
 
 
 # Proposal axoden use
