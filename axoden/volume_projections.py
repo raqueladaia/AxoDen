@@ -1,14 +1,21 @@
 # Import libraries
 import os
+import re
 import numpy as np
 import pandas as pd
+from tqdm import tqdm
 from PIL import Image
+from pathlib import Path
+
 # Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
+
 # Import plotting libraries
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
+
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 
 def intensity_along_axis(img, ax=None):
@@ -19,6 +26,8 @@ def intensity_along_axis(img, ax=None):
         s = np.nansum(img, axis=1) # Sum along the y axis
     elif ax is None:
         s = (np.nansum(img, axis=0), np.nansum(img, axis=1))  # Sum along the x and y axis
+    else:
+        raise ValueError(f"Expected argument ax to be one of 'x' or 'y' or None, but received '{ax}'")
     return s
 
 def remove_spines_plot(ax, loc=['all']):
@@ -38,6 +47,8 @@ def remove_ticks_plot(ax, loc='all'):
         ax.set_xticks([])
     elif loc == 'y':
         ax.set_yticks([])
+    else:
+        raise ValueError(f"Expected argument 'loc' to be one of 'all', 'x', 'y', but received '{loc}'")
 
 def plot_intensity_along_axis(ax, x, y, loc):
     if loc == 'y':
@@ -126,30 +137,48 @@ def get_tif_files(folder_path):
 
 def collect_info_from_filename(filename):
     img_name = os.path.basename(filename)
-    img_name = img_name.split('.')[0]
-    animal = img_name.split('_')[0]
-    brain_area = img_name.split('_')[1]
+    img_name, _ = os.path.splitext(img_name)
+    
+    # img_name = img_name.split('.')[0]
+    name_parts = img_name.split('_')
+    if len(name_parts) < 2:
+        raise ValueError(
+            "Expected filename to include at least one '_' character to split animal from brain area, "
+            f"e.g. 'animal_brainarea.tif', but received the file name '{filename}'"
+        )
+    animal = name_parts[0]
+    brain_area = name_parts[1]
     return animal, brain_area
 
 def open_tif_image(img_path):
-    return Image.open(img_path)
+    """Open a tif image.
 
-def generate_mask(img, shape_rec):
-    """Generate a mask for the image provided."""
-    # For rectangular images
-    if shape_rec:    
-        mask = np.full_like(img, False)
-        if len(np.array(img).shape) == 3:
-            mask = mask[:, :, 0]
-        else:
-            mask = mask
-    # For non-rectangular images
-    if not shape_rec:
-        image_matrix = np.array(img)
-        if len(np.array(img).shape) == 3:
+    Args:
+        img_path: A filename (string), os.PathLike object or a file object.
+    
+    Returns:
+        Image: A PIL Image object.
+    """
+    return Image.open(img_path)  # works well also with Uploaded image
+
+def generate_background_mask(img, is_masked):
+    """Generate a background mask for the image provided."""
+
+    image_matrix = np.array(img)
+    
+    # For non-masked images
+    if not is_masked:
+        mask = np.zeros(image_matrix.shape[0:2], dtype='bool')
+
+    # For masked images
+    else:
+        if image_matrix.ndim == 3:
             mask = np.all(image_matrix == [0, 0, 0], axis=-1)
-        elif len(np.array(img).shape) == 2:
-            mask = np.all(image_matrix == [0, 0], axis=-1)
+        elif image_matrix.ndim == 2:
+            mask = image_matrix == 0
+        else:
+            raise ValueError(f"Expected image of dimension 2 or 3, but reiceived shape {image_matrix.shape}")
+
     return mask
 
 def convert_image_to_gray(img):
@@ -158,16 +187,26 @@ def convert_image_to_gray(img):
 def collect_within_mask(img, mask):
     return np.where(mask, np.nan, img)
 
-def collect_image_mask(img_path, img_rectangle_shape):
-    """Open the image and cut it to the area that contains tissue."""
+
+def collect_image_mask(img_path: any, is_masked: bool) -> tuple[np.ndarray, np.ndarray]:
+    """Open the image and cut it to the area that contains tissue.
+    
+    Args:
+        img_path: A filename (string), os.PathLike object or a file object.
+        is_masked: True if the image was masked and contains regions that are set to a value of 0.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: A tuple containing the cut image and the mask.
+    """
     img = open_tif_image(img_path)
     # Find the area of the image that cotains tissue
-    mask = generate_mask(img, img_rectangle_shape)
+    mask = generate_background_mask(img, is_masked)
     # Convert image to grayscale
     image_gray = convert_image_to_gray(img)
     # Cut the image to the area that contains tissue
     cut_image = collect_within_mask(image_gray, mask)
     return cut_image, mask
+
 
 def binarize_image(image, threshold):
     """Binarize the image using the threshold provided."""
@@ -176,6 +215,16 @@ def binarize_image(image, threshold):
 
 def count_pixels(img):
     """Count the number of white and black pixels in the image."""
+
+    # make sure the image is binarized and only contains black (0) and white (1) pixels
+    # otherwise this function will not behave properly!
+    unique_values = np.unique(img)
+    if not (
+        len(unique_values) == 2 and
+        np.all(np.unique(img) == [0, 1])
+    ):
+        raise ValueError(f'Expected a binarized image with only zeros and ones, but received values {unique_values}')
+
     white_pixels = np.sum(img)
     black_pixels = np.sum(1 - img)
     all_pixels = white_pixels + black_pixels
@@ -200,7 +249,8 @@ def make_figures_pdf_editable():
     plt.rcParams['pdf.fonttype'] = 42
     plt.rcParams['ps.fonttype'] = 42
     plt.rcParams['font.family'] = 'sans-serif'
-    plt.rcParams['font.sans-serif'] = 'Arial'
+    # plt.rcParams['font.sans-serif'] = 'Arial' # TODO: Arial not available
+    plt.rcParams['font.sans-serif'] = 'DejaVu Sans'
 
 def prepare_axis_information(img, pixel_size):
     x_ax_pixels = np.linspace(0, img.shape[1], 6)
@@ -209,10 +259,53 @@ def prepare_axis_information(img, pixel_size):
     y_ax_um = np.round(y_ax_pixels * pixel_size, decimals=1)
     return [x_ax_pixels, x_ax_um, y_ax_pixels, y_ax_um]
 
-def save_table(df, folderpath, filename):
+
+def load_table(file_path: str):
+    """Load a table from a csv file.
+
+    Args:
+        file_path (str): Path to the csv file.
+
+    Returns:
+        pd.DataFrame: A DataFrame with the data from the csv file.
+    """
+
+    def _string_to_ndarray(string_list):
+        """Convert a string representation of a list of numbers to a numpy array."""
+        return np.array([int(n) for n in re.findall('\d+', string_list)])  
+
+    col_types = {"animal": str, "brain_area": str}
+    table_data = pd.read_csv(file_path, dtype=col_types)
+    for col in table_data.columns:
+        if 'signal_bin' in col or 'signal_gray' in col:  # those are ndarray columns
+            table_data[col] = table_data[col].apply(_string_to_ndarray)
+    
+    return table_data
+
+
+def save_table(df: pd.DataFrame, folderpath: str, filename: str):
+    """Save a table to a csv file.
+
+    Args:
+        df (pd.DataFrame): DataFrame to save.
+        folderpath (str): Path to the folder where the file will be saved.
+        filename (str): Name of the file.
+    """
+    df = df.copy() # make sure the original dataframe is not modified
+
+    Path(folderpath).mkdir(parents=True, exist_ok=True)
+
     filepath = os.path.join(folderpath, filename)
     if os.path.exists(filepath):
         os.remove(filepath)
+
+    # convert numpy arrays to lists, otherwise the string representation is saved as [0, 5, 2, ..., 3, 4, 5]
+    # if filename.endswith('axis.csv'):
+    for col in df.columns:
+        if isinstance(df[col][0], np.ndarray):
+            # [1:-1] removes brackets
+            # .replace(' ', '') removes spaces to make file size smaller
+            df[col] = df[col].apply(lambda x: str(list(x.astype(int)))[1:-1].replace(' ', ''))
     df.to_csv(filepath, index=False)      
 
 
@@ -252,13 +345,90 @@ def generate_control_plot(img, img_bin, msk, pixel_size, info_pie):
     ax_pie.set_aspect('equal')
     # Add a line to the pie chart
     ax_pie.add_line(plt.Line2D([0.5, 0.5], [0.5, 0.5], color='black', linewidth=1))
-    
 
-def collect_data(folder_path, pixel_size, img_shape):
+
+def process_image(
+    file_name: any,
+    is_masked: bool,
+    pixel_size: float,
+    animal: str = "animal_1",
+    brain_area: str = "brain_area_1",
+) -> tuple[plt.Figure, dict, dict]:
+    """Process a single image and generate a control plot.
+
+    Args:
+        file_name (any): A filename (string), os.PathLike object or a file object.
+        is_masked (bool): True if the image was masked and contains regions that are set to a value of 0.
+        pixel_size (float): Pixel size in micrometers.
+        animal (str): Name of the animal. Default is "animal_1".
+        brain_area (str): Name of the brain area. Default is "brain_area_1".
+
+    Returns:
+        tuple[plt.Figure, dict, dict]: A tuple containing the figure,
+            the data for the image and the data with the axis projections.
     """
-    Collect the data from the images in the folder provided and save it as a csv file.
-    Create a control plot for each image.
+    img, msk = collect_image_mask(file_name, is_masked)
+    msk_bool = msk.astype(bool)
+    thr = compute_threshold(img[~msk_bool])
+    img_bin = binarize_image(img, thr)
+
+    [w, b, all] = count_pixels(img_bin[~msk_bool])
+    area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
+    area_image_um = area_img / 1000  # TODO: why / 1000? the pixel size is in um, so the area shoud be in um^2 already
+
+    # Append the information to the DataFrame for the image
+    data = {'animal': animal, 
+                'brain_area': brain_area, 
+                'pixels_signal': w, 
+                'pixels_black': b, 
+                'pixels_total': all,
+                'threshold': thr, 
+                'area_image': area_img,
+                'area_signal': area_w,
+                'area_black': area_b,
+                'area_img_um': area_image_um}
+
+    # Append the information to the DataFrame for the axis
+    axis_data = {'animal': animal,
+                    'brain_area': brain_area,
+                    'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
+                    'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
+                    'signal_gray_x_ax': intensity_along_axis(img, 'x'),
+                    'signal_gray_y_ax': intensity_along_axis(img, 'y')}
+
+    # Generate control plot
+    fig = plt.figure(figsize=(8, 8))
+    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
+    info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
+                "sizes": [area_w, area_b],
+                "colors": ['white', 'grey']}
+    generate_control_plot(img, img_bin, msk, pixel_size, info_pie)
+
+    return fig, data, axis_data
+
+
+def process_folder(
+    folder_path: str,
+    pixel_size: float,
+    is_masked: bool,
+    output_folder: str = None,
+    save: bool = True,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Process all the images in the folder provided and save the data as a csv files and figures if requested.
+    
+    Args:
+        folder_path (str): Path to the folder containing the images.
+        pixel_size (float): Pixel size in micrometers.
+        is_masked (bool): True if the image was masked and contains regions that are set to a value of 0.
+        output_folder (str): Path to the folder where the data will be saved. If not set, the input folder will be used.
+        save (bool): True if the control plots should be saved. Default is True.
+
+    Returns:
+        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images and the data for the axis.
     """
+
+    if not output_folder:
+        output_folder = folder_path
 
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
@@ -268,8 +438,9 @@ def collect_data(folder_path, pixel_size, img_shape):
     table_data_axis = pd.DataFrame()
     
     # Create a folder for the control plots if it doesn't exist in the folder path
-    if not os.path.exists(os.path.join(folder_path, 'control_plots')):
-        os.mkdir(os.path.join(folder_path, 'control_plots'))
+    control_plot_path = os.path.join(output_folder, 'control_plots')
+    if save:
+        Path(control_plot_path).mkdir(parents=True, exist_ok=True)
 
     # Create a list with all the tif files in the folder    
     file_list = get_tif_files(folder_path)
@@ -278,89 +449,69 @@ def collect_data(folder_path, pixel_size, img_shape):
     n_images = len(file_list)
 
     # Loop through all the images in the folder
-    for i, filepath in enumerate(file_list):
-
-        # Print the progression every 5th iteration
-        if int(i+1) % 5 == 0:
-            print(f"Processing image {int(i+1)} out of {n_images}")
-
-        # Get the animal and brain area from the image name
+    for filepath in tqdm(file_list, desc="Processing images"):
         animal, brain_area = collect_info_from_filename(filepath)
-        
-        # Open the image, collect the mask, calculate threshold for binarization and binarize the image
-        img, msk = collect_image_mask(filepath, img_shape)
-        msk_bool = msk.astype(bool)
-        thr = compute_threshold(img[~msk_bool])
-        img_bin = binarize_image(img, thr)
+        fig, _temp_, _temp_axis_ = process_image(
+            filepath,
+            is_masked=is_masked,
+            pixel_size=pixel_size,
+            animal=animal,
+            brain_area=brain_area,
+        )
 
-        # Calculate the number of white and black pixels of the pixels within the mask and the area they occupy
-        [w, b, all] = count_pixels(img_bin[~msk_bool])
-        area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
-        area_image_um = area_img / 1000
-        del msk_bool
-
-        # Append the information to the DataFrame for the image
-        _temp_ = {'animal': animal, 
-                  'brain_area': brain_area, 
-                  'pixels_signal': w, 
-                  'pixels_black': b, 
-                  'pixels_total': all,
-                  'threshold': thr, 
-                  'area_image': area_img,
-                  'area_signal': area_w,
-                  'area_black': area_b,
-                  'area_img_um': area_image_um}
         if np.sum(table_data.shape) == 0:
             table_data = pd.DataFrame(columns=_temp_.keys())
         table_data.loc[len(table_data)] = _temp_
 
-        # Append the information to the DataFrame for the axis
-        _temp_axis_ = {'animal': animal,
-                       'brain_area': brain_area,
-                       'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
-                       'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
-                       'signal_gray_x_ax': intensity_along_axis(img, 'x'),
-                       'signal_gray_y_ax': intensity_along_axis(img, 'y')}
         if np.sum(table_data_axis.shape) == 0:
             table_data_axis = pd.DataFrame(columns=_temp_axis_.keys())
         table_data_axis.loc[len(table_data_axis)] = _temp_axis_
         
-        del _temp_, _temp_axis_
-        
-        # Generate control plot
-        fig = plt.figure(figsize=(8, 8))
-        fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
-        info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
-                    "sizes": [area_w, area_b],
-                    "colors": ['white', 'grey']}
-        generate_control_plot(img, img_bin, msk, pixel_size, info_pie)
-        
         # Save control plot
-        figure_name = f'{animal}_{brain_area}_control_plot.pdf'
-        figure_path = os.path.join(folder_path, 'control_plots', figure_name)
-        plt.savefig(figure_path, dpi=300)        
+        if save:
+            figure_name = f'{animal}_{brain_area}_control_plot.pdf'
+            figure_path = os.path.join(control_plot_path, figure_name)
+            plt.savefig(figure_path, dpi=300)        
         plt.close(fig)
-        
-    print("Processing images finished")
-
 
     # Compute the percentage of white pixels
     table_data['percent_signal'] = table_data['pixels_signal'] / table_data['pixels_total'] * 100
 
     # Save dataframes as csv files
-    save_table(table_data, folder_path, 'projections_quantification.csv')
-    save_table(table_data_axis, folder_path, 'projections_quantification_axis.csv')
+    if save:
+        save_table(table_data, output_folder, 'projections_quantification.csv')
+        save_table(table_data_axis, output_folder, 'projections_quantification_axis.csv')
 
     return table_data, table_data_axis
 
 
-def plot_summary_data(folder_path, df_input):
+def write_summary_data_plot(folder_path: str, df_input: pd.DataFrame, project_name: str = None):
+    """Write the summary data plot to a pdf file in the folder provided.
+    
+    Args:
+        folder_path (str): Path to the folder where the data will be saved.
+        df_input (pd.DataFrame): Dataframe with the data to plot.
+        project_name (str): Name of the project. If not set, it will be the name of the folder.
+    """
+
+    Path(folder_path).mkdir(parents=True, exist_ok=True)
+
+    if not project_name:
+        project_name = os.path.basename(folder_path)
+
+    fig = plot_summary_data(df_input, project_name)
+
+    # Save the figure
+    figure_name = 'projections_quantification.pdf'
+    figure_path = os.path.join(folder_path, figure_name)
+    fig.savefig(figure_path, dpi=300)
+    plt.close()
+
+
+def plot_summary_data(df_input, project_name):
 
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
-
-    # Collect project name
-    project_name = os.path.basename(folder_path)
 
     # Create a figure with four subplots
     fig, ax = plt.subplots(1, 4, figsize=(18, 5))
@@ -437,20 +588,48 @@ def plot_summary_data(folder_path, df_input):
 
     # Delete the DataFrame
     del df, df_input
+    return fig
 
-    # Save the figure
-    figure_name = 'projections_quantification.pdf'
-    figure_path = os.path.join(folder_path, figure_name)
-    plt.savefig(figure_path, dpi=300)
-    plt.close()
 
-def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
+def write_signal_intensity_along_axis_plot(output_folder: str, df: pd.DataFrame, pixel_size: float, project_name: str = None):
+    """Write the signal intensity along the axis plot to a pdf file in the folder provided.
     
-    # Set fonts editable in Adobe Illustrator
-    make_figures_pdf_editable()
+    Args:
+        folderpath (str): Path to the folder where the data will be saved.
+        df (pd.DataFrame): Dataframe with the axis data to plot.
+        pixel_size (float): Pixel size in micrometers.
+        project_name (str): Name of the project. If not set, it will be the name of the output folder.
+    """
 
     # Collect project name
-    project_name = os.path.basename(folderpath)
+    if not project_name:
+        project_name = os.path.basename(output_folder)
+
+    fig = plot_signal_intensity_along_axis(project_name, df, pixel_size)
+
+    # Save the figure
+    figure_name = 'projections_quantification_along_axis.pdf'
+    figure_path = os.path.join(output_folder, figure_name)
+    if os.path.exists(figure_path):
+        os.remove(figure_path)
+    fig.savefig(figure_path, dpi=300)
+    plt.close()
+
+
+def plot_signal_intensity_along_axis(project_name: str, df: pd.DataFrame, pixel_size: float):
+    """Plot the signal intensity along the x and y axis of the images provided in the DataFrame.
+
+    Args:
+        project_name (str): Name of the project.
+        df (pd.DataFrame): DataFrame with the data to plot.
+        pixel_size (float): Pixel size in micrometers.
+
+    Returns:
+        plt.Figure: A figure with the signal intensity along the x and y axis.
+    """
+
+    # Set fonts editable in Adobe Illustrator
+    make_figures_pdf_editable()
 
     # Get the unique brain areas
     brain_areas = df['brain_area'].unique()
@@ -468,7 +647,7 @@ def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
     subplot_titles = ['Medio-Lateral axis', 'Dorso-Ventral axis']
 
     # Create a figure with four subplots
-    fig, ax = plt.subplots(n_ba, len(data_cols), figsize=(16, 9))
+    fig, ax = plt.subplots(n_ba, len(data_cols), figsize=(16, 9), squeeze=False)
     fig.suptitle(f'Project "{project_name}"\nSignal Intensity Along the Medio-Lateral and Dorso-Ventral Axes', weight='bold')
 
     # Set the color for the plots
@@ -505,7 +684,7 @@ def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
             x_ax_ticks = np.round(np.linspace(0, n_pts, 10), 1)
             x_ax_labels = np.round(x_ax_ticks * pixel_size, 1)
             # Plot the values of each animal
-            ax[i_ba, i_col].plot(x_ax, vals.T, color='grey', alpha=0.5, linewidth=0.7)
+            ax[i_ba, i_col].plot(x_ax, vals.T, color='grey', alpha=0.5, linewidth=0.7) # FIXME: crashes with only a single animal, need to test
             # Plot the bar plot with the mean and sem
             ax[i_ba, i_col].plot(x_ax, vals_mean, color=color_bars, linewidth=1.5)
             ax[i_ba, i_col].fill_between(x_ax, vals_mean - sem, vals_mean + sem, color=color_bars, alpha=0.2)
@@ -531,15 +710,8 @@ def plot_signal_intensity_along_axis(folderpath, df, pixel_size):
     sns.despine(fig=fig, top=True, right=True)
     plt.subplots_adjust(top=0.92, bottom=0.05, hspace=0.5, wspace=0.2)
 
-    # Save the figure
-    figure_name = 'projections_quantification_along_axis.pdf'
-    figure_path = os.path.join(folderpath, figure_name)
-    if os.path.exists(figure_path):
-        os.remove(figure_path)
-    plt.savefig(figure_path, dpi=300)
-    plt.close()
+    return fig
 
-    
 
 
 if __name__ == '__main__':
@@ -551,11 +723,11 @@ if __name__ == '__main__':
     is_image_rectangle = False
 
     # Collect the data and save it as a csv file
-    quant_projections, quant_along_axis = collect_data(folderpath, pixel_size, is_image_rectangle)
+    quant_projections, quant_along_axis = process_folder(folderpath, pixel_size, is_image_rectangle)
 
     # Plot the summary data
-    plot_summary_data(folderpath, quant_projections)
+    write_summary_data_plot(folderpath, quant_projections)
 
     # Plot the average of the signal intensity along the x and y axis
-    plot_signal_intensity_along_axis(folderpath, quant_along_axis, pixel_size)
+    write_signal_intensity_along_axis_plot(folderpath, quant_along_axis, pixel_size)
 

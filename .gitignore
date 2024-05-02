@@ -62,3 +62,5 @@ build/
 
 *.spec
 .vscode/
+coverage.xml
+.coverage
