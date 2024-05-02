@@ -98,6 +98,9 @@ Guidelines for contributing to the project and how to submit changes.
 Information about the project's license and any relevant terms.
 
 # Done Pascal
+- deploy from raqueladaia/AxoDen --> organize call 1-2h
+- use release branch for this
+- how is the axoden pip package used? --> Pascal to propose
 - themeing, colors etc. -> UPenn colors ok
 - bug fixes, see below
 - csv loading and saving is compatible with saving csv data from streamlit (same format)
@@ -108,7 +111,7 @@ Information about the project's license and any relevant terms.
 # TODO
 - Raquel
   - text for initial tutorial
-  - double check that the units are correct, volume_projections.py line 318 seems strange
+  - double check that the units are correct, volume_projections.py line 377 seems strange
   - initial citation -> waiting for submission
   - go over all headers, text, naming
   - test how many images can be uploaded/used simultaneously --> Todo later with real images
@@ -116,11 +119,12 @@ Information about the project's license and any relevant terms.
     - limit number of images
   - how many concurrent users? How can we test?
   - what sample images to include
+  - write section about how data is used on streamlit tutorial page: data is kept in memory
 - Pascal
-  - deploy from raqueladaia/AxoDen --> organize call 1-2h
-  - use release branch for this
-  - how is the axoden pip package used? --> Pascal to propose
-  - there should be a few simple examples: python -m axoden_gui? python -m axoden
+  - write section about how data is used in README.md: data is kept in memory
+  - remove guis from pip module
+  - pip module needs dependencies
+  - github action to build .exe for windows users
   - update README with instructions for
     - streamlit use locally
     - gui locally
