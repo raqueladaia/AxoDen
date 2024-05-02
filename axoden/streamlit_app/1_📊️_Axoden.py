@@ -1,6 +1,4 @@
 import os
-from io import BytesIO
-from pypdf import PdfReader, PdfWriter
 import streamlit as st
 
 import logging
@@ -8,6 +6,7 @@ import logging
 import numpy as np
 import pandas as pd
 from typing import Iterable
+from PIL import UnidentifiedImageError
 
 from matplotlib import pyplot as plt
 from streamlit_pdf_viewer import pdf_viewer
@@ -16,9 +15,9 @@ import sys
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
-from axoden.volume_projections import collect_image_mask, compute_threshold, binarize_image, count_pixels
-from axoden.volume_projections import compute_area, collect_info_from_filename, intensity_along_axis, generate_control_plot
+from axoden.volume_projections import collect_info_from_filename
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis, process_image
+from axoden.streamlit_app.pdf_utils import fig2pdfpage, fig2stream, pdf2stream, pages2pdf, join_pdfs
 
 MAX_IMAGES = 50  # TODO: decide on file upload limit
 DEFAULT_PIXEL_SIZE = 0.75521
@@ -26,17 +25,6 @@ DEFAULT_PIXEL_SIZE = 0.75521
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
-def fig2pdfpage(fig):
-    out_pdf = BytesIO()
-    fig.savefig(out_pdf, format="pdf")
-    out_pdf = PdfReader(out_pdf)
-    return out_pdf.pages[0]
-
-
-def fig2stream(fig):
-    stream = BytesIO()
-    fig.savefig(stream, format="pdf")
-    return stream
 
 def invalidate_figure_cache():
     st.session_state.figure_cache = {}
@@ -59,8 +47,20 @@ def process_image_single(raw_image, pixel_size, is_masked):
         logger.info(f'process_image_single found cache for {cache_key}')
         return st.session_state.figure_cache[cache_key]
 
-    animal, brain_area = collect_info_from_filename(raw_image.name)
-    fig, _temp_, _temp_axis_ = process_image(raw_image, is_masked, pixel_size, animal=animal, brain_area=brain_area)
+    try:
+        animal, brain_area = collect_info_from_filename(raw_image.name)
+    except ValueError as e:
+        logger.error(f'Error: {e}')
+        st.warning(f"Error: {e}")
+        st.stop()
+        return None, None, None
+    try:
+        fig, _temp_, _temp_axis_ = process_image(raw_image, is_masked, pixel_size, animal=animal, brain_area=brain_area)
+    except UnidentifiedImageError as e:
+        logger.error(f'Error: {e}')
+        st.warning(f"Error: {e}")
+        st.stop()
+        return None, None, None
 
     pdf_fig = fig2pdfpage(fig)
     pdf_fig = pages2pdf([pdf_fig])
@@ -106,39 +106,6 @@ def process_images(raw_files, pixel_size, is_masked):
     return figures, table_data, table_data_axis
 
 
-def pdf2stream(pdf):
-    if not pdf:
-        return None
-
-    pdf_stream = BytesIO()
-    pdf.write_stream(pdf_stream)
-    return pdf_stream
-
-
-def pages2pdf(pages):
-    if not pages:
-        return None
-
-    pdf = PdfWriter()
-    for page in pages:
-        pdf.add_page(page)
-    return pdf
-
-
-@st.cache_data
-def figures2pdf(_figures, metadata):
-    if not _figures:
-        return None
-
-    pdf = PdfWriter()
-    for fig in _figures:
-        page = fig2pdfpage(fig)
-        pdf.add_page(page)
-    pdf_stream = BytesIO()
-    pdf.write_stream(pdf_stream)
-    return pdf_stream
-
-
 def cached_plot_summary_data(table_data, project_name):
     fig = plot_summary_data(table_data, project_name)
     fig_stream = fig2stream(fig)
@@ -164,14 +131,6 @@ def get_figure_by_brain_region(_figures, brain_areas):
     return figures_out
 
 
-def join_pdfs(pdfs):
-    pdf = PdfWriter()
-    for p in pdfs:
-        page = p.pages[0]
-        pdf.add_page(page)
-    pdf_stream = BytesIO()
-    pdf.write_stream(pdf_stream)
-    return pdf_stream
 
 
 def axo_den_app():

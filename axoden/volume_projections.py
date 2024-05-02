@@ -4,8 +4,10 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 from PIL import Image
+
 # Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
+
 # Import plotting libraries
 import matplotlib.pyplot as plt
 import seaborn as sns
