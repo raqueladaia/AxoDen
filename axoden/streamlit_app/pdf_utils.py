@@ -4,8 +4,6 @@ from pypdf._page import PageObject
 
 from matplotlib.figure import Figure
 
-import streamlit as st
-
 
 def fig2pdfpage(fig: Figure) -> PageObject:
     """Converts a matplotlib figure to a PyPDF PageObject.

@@ -47,6 +47,11 @@ For linux:
 sudo apt install python3-tk
 ```
 
+Or for a specific version of python, e.g. python 3.11:
+```bash
+sudo apt install python3.11-tk
+```
+
 Mac (not tested):
 ```bash
 brew install python-tk

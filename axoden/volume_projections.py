@@ -15,8 +15,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
 
-from streamlit.runtime.uploaded_file_manager import UploadedFile
-
 
 def intensity_along_axis(img, ax=None):
     """ Compute the intensity along the x or y axis of the image. """
