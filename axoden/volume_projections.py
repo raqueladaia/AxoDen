@@ -7,6 +7,8 @@ from tqdm import tqdm
 from PIL import Image
 from pathlib import Path
 
+from typing import Tuple
+
 # Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
 
@@ -186,7 +188,7 @@ def collect_within_mask(img, mask):
     return np.where(mask, np.nan, img)
 
 
-def collect_image_mask(img_path: any, is_masked: bool) -> tuple[np.ndarray, np.ndarray]:
+def collect_image_mask(img_path: any, is_masked: bool) -> Tuple[np.ndarray, np.ndarray]:
     """Open the image and cut it to the area that contains tissue.
     
     Args:
@@ -194,7 +196,7 @@ def collect_image_mask(img_path: any, is_masked: bool) -> tuple[np.ndarray, np.n
         is_masked: True if the image was masked and contains regions that are set to a value of 0.
 
     Returns:
-        tuple[np.ndarray, np.ndarray]: A tuple containing the cut image and the mask.
+        Tuple[np.ndarray, np.ndarray]: A tuple containing the cut image and the mask.
     """
     img = open_tif_image(img_path)
     # Find the area of the image that cotains tissue
@@ -270,7 +272,7 @@ def load_table(file_path: str):
 
     def _string_to_ndarray(string_list):
         """Convert a string representation of a list of numbers to a numpy array."""
-        return np.array([int(n) for n in re.findall('\d+', string_list)])  
+        return np.array([int(n) for n in re.findall(r'\d+', string_list)])  
 
     col_types = {"animal": str, "brain_area": str}
     table_data = pd.read_csv(file_path, dtype=col_types)
@@ -351,7 +353,7 @@ def process_image(
     pixel_size: float,
     animal: str = "animal_1",
     brain_area: str = "brain_area_1",
-) -> tuple[plt.Figure, dict, dict]:
+) -> Tuple[plt.Figure, dict, dict]:
     """Process a single image and generate a control plot.
 
     Args:
@@ -362,7 +364,7 @@ def process_image(
         brain_area (str): Name of the brain area. Default is "brain_area_1".
 
     Returns:
-        tuple[plt.Figure, dict, dict]: A tuple containing the figure,
+        Tuple[plt.Figure, dict, dict]: A tuple containing the figure,
             the data for the image and the data with the axis projections.
     """
     img, msk = collect_image_mask(file_name, is_masked)
@@ -411,7 +413,7 @@ def process_folder(
     is_masked: bool,
     output_folder: str = None,
     save: bool = True,
-) -> tuple[pd.DataFrame, pd.DataFrame]:
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Process all the images in the folder provided and save the data as a csv files and figures if requested.
     
     Args:
@@ -422,7 +424,7 @@ def process_folder(
         save (bool): True if the control plots should be saved. Default is True.
 
     Returns:
-        tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images and the data for the axis.
+        Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images and the data for the axis.
     """
 
     if not output_folder:
