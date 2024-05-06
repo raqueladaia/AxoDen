@@ -100,19 +100,27 @@ def test_remove_ticks_plot():
     with pytest.raises(ValueError):
         remove_ticks_plot(ax, loc='wrong_Argument')
 
-@pytest.mark.parametrize(("filename", "expected_animal", "expected_brain_area"),
+@pytest.mark.parametrize(("filename", "expected_animal", "expected_brain_area", "expected_group"),
     (
-        ("0001_ACC.tif", "0001", "ACC"),
-        ("1.1_ACC.x.tif", "1.1", "ACC.x"),
-        ("animal1_acc.tif", "animal1", "acc"),
-        ("folder/0001_ACC.tif", "0001", "ACC"),
-        ("0001_ACC_unused.tif", "0001", "ACC"),
-        ("0001_ACC-SUB.tif", "0001", "ACC-SUB"),
-        ("0001_ACC-SUB_unused_unused2.tif", "0001", "ACC-SUB"),
+        ("0001_ACC_grp1.tif", "0001", "ACC", "grp1"),
+        ("1.1_ACC.x_group.2.tif", "1.1", "ACC.x", "group.2"),
+        ("animal1_acc.tif", "animal1", "acc", ""),
+        ("folder/0001_ACC.tif", "0001", "ACC", ""),
+        ("0001_ACC_groupx_unused.tif", "0001", "ACC", "groupx"),
+        ("0001_ACC-SUB_grp-x.tif", "0001", "ACC-SUB", "grp-x"),
+        ("0001_ACC-SUB_GRP1_unused_unused2.tif", "0001", "ACC-SUB", "GRP1"),
     )
 )
-def test_collect_info_from_filename(filename, expected_animal, expected_brain_area):
-    assert expected_animal, expected_brain_area == collect_info_from_filename(filename)
+def test_collect_info_from_filename(filename, expected_animal, expected_brain_area, expected_group):
+    animal, brain_area, group = collect_info_from_filename(filename)
+
+    assert animal == expected_animal
+    assert brain_area == expected_brain_area
+
+    if expected_group:
+        assert group == expected_group
+    else:
+        assert group  # there should be a default value
 
 
 def test_collect_info_from_filename_error():
@@ -318,6 +326,3 @@ def test_compute_threshold():
     # using wide range here, we don't care about the exact value
     # we care only to get notified if something goes really wrong
     assert thr == pytest.approx(102, 10)
-
-
-

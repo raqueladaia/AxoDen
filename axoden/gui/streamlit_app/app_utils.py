@@ -1,9 +1,12 @@
-import streamlit as st
 import logging
 import pandas as pd
 import numpy as np
 from PIL import UnidentifiedImageError
 import matplotlib.pyplot as plt
+import pypdf
+
+import streamlit as st
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 from axoden.volume_projections import collect_info_from_filename
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis, process_image
@@ -15,6 +18,7 @@ logging.basicConfig(level=logging.WARNING)
 
 
 def init_session_state():
+    """Initializes the session state variables."""
     if 'figures' not in st.session_state:
         st.session_state.figures = []
 
@@ -29,15 +33,35 @@ def init_session_state():
 
     if 'figure_cache' not in st.session_state:
         st.session_state.figure_cache = {}
-    print("initiated session state")
 
 
 def invalidate_figure_cache():
+    """Invalidates the figure cache."""
     st.session_state.figure_cache = {}
     logger.info('invalidated figure cache')
 
 
-def process_images(raw_files, pixel_size, is_masked, cache=None):
+def process_images(
+        raw_files: list[UploadedFile],
+        pixel_size: float,
+        is_masked: bool,
+        cache: dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)] = None) \
+            -> tuple[list[plt.Figure], pd.DataFrame, pd.DataFrame]:
+    """
+    Process a list of raw image files.
+
+    Args:
+        raw_files (list[UploadedFile]): A list of raw image files.
+        pixel_size (float): The pixel size.
+        is_masked (bool): A flag indicating whether the images are masked.
+        cache (dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)], optional):
+            Use st.session_state.figure_cache as an intermediate cache. Defaults to None.
+
+    Returns:
+        tuple[list[plt.Figure], pd.DataFrame, pd.DataFrame]: A tuple containing the processed figures,
+            table data, and table data axis.
+    """
+    
     if not raw_files:
         return [], None, None
 
@@ -72,20 +96,36 @@ def process_images(raw_files, pixel_size, is_masked, cache=None):
 
 
 def process_image_single(raw_image, pixel_size, is_masked, cache=None):
+    """
+    Process a single image.
+
+    Args:
+        raw_image (object): The raw image object.
+        pixel_size (float): The pixel size.
+        is_masked (bool): Flag indicating whether the image is masked.
+        cache (dict, optional): The cache dictionary to store processed images. Defaults to None.
+
+    Returns:
+        tuple: A tuple containing the processed image, temporary variables, and temporary axis.
+    """
+    
     cache_key = (raw_image.file_id, pixel_size, is_masked) 
     if cache_key in cache:
         logger.info(f'process_image_single found cache for {cache_key}')
         return cache[cache_key]
 
     try:
-        animal, brain_area = collect_info_from_filename(raw_image.name)
+        animal, brain_area, group = collect_info_from_filename(raw_image.name)
     except ValueError as e:
         logger.error(f'Error: {e}')
         st.warning(f"Error: {e}")
         st.stop()
         return None, None, None
     try:
-        fig, _temp_, _temp_axis_ = process_image(raw_image, is_masked, pixel_size, animal=animal, brain_area=brain_area)
+        fig, _temp_, _temp_axis_ = process_image(
+            raw_image, is_masked, pixel_size,
+            animal=animal, brain_area=brain_area, group=group
+        )
     except UnidentifiedImageError as e:
         logger.error(f'Error: {e}')
         st.warning(f"Error: {e}")

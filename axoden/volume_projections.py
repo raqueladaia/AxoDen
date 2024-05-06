@@ -135,7 +135,15 @@ def get_tif_files(folder_path):
     return tif_files
 
 
-def collect_info_from_filename(filename):
+def collect_info_from_filename(filename: str) -> Tuple[str, str, str]:
+    """Collect the animal, brain area and group from the filename.
+    
+    Args:
+        filename (str): Name of the file.
+
+    Returns:
+        Tuple[str, str, str]: A tuple containing the animal, brain area and group.
+    """
     img_name = os.path.basename(filename)
     img_name, _ = os.path.splitext(img_name)
     
@@ -148,7 +156,13 @@ def collect_info_from_filename(filename):
         )
     animal = name_parts[0]
     brain_area = name_parts[1]
-    return animal, brain_area
+
+    # backward compatibility for only animal and brain area
+    group = "group1"
+    if len(name_parts) >= 3:
+        group = name_parts[2]
+
+    return animal, brain_area, group
 
 def open_tif_image(img_path):
     """Open a tif image.
@@ -351,8 +365,9 @@ def process_image(
     file_name: any,
     is_masked: bool,
     pixel_size: float,
-    animal: str = "animal_1",
-    brain_area: str = "brain_area_1",
+    animal: str = "animal1",
+    brain_area: str = "brain_area1",
+    group: str = "group1",
 ) -> Tuple[plt.Figure, dict, dict]:
     """Process a single image and generate a control plot.
 
@@ -360,8 +375,9 @@ def process_image(
         file_name (any): A filename (string), os.PathLike object or a file object.
         is_masked (bool): True if the image was masked and contains regions that are set to a value of 0.
         pixel_size (float): Pixel size in micrometers.
-        animal (str): Name of the animal. Default is "animal_1".
-        brain_area (str): Name of the brain area. Default is "brain_area_1".
+        animal (str): Name of the animal. Default is "animal1".
+        brain_area (str): Name of the brain area. Default is "brain_area1".
+        group (str): Name of the group. Default is "group1".
 
     Returns:
         Tuple[plt.Figure, dict, dict]: A tuple containing the figure,
@@ -379,6 +395,7 @@ def process_image(
     # Append the information to the DataFrame for the image
     data = {'animal': animal, 
                 'brain_area': brain_area, 
+                'group': group,
                 'pixels_signal': w, 
                 'pixels_black': b, 
                 'pixels_total': all,
@@ -391,6 +408,7 @@ def process_image(
     # Append the information to the DataFrame for the axis
     axis_data = {'animal': animal,
                     'brain_area': brain_area,
+                    'group': group,
                     'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
                     'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
                     'signal_gray_x_ax': intensity_along_axis(img, 'x'),
@@ -398,7 +416,7 @@ def process_image(
 
     # Generate control plot
     fig = plt.figure(figsize=(8, 8))
-    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
+    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2| {group} | Threshold: {thr:.2f}', weight='bold')
     info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
                 "sizes": [area_w, area_b],
                 "colors": ['white', 'grey']}
@@ -450,13 +468,14 @@ def process_folder(
 
     # Loop through all the images in the folder
     for filepath in tqdm(file_list, desc="Processing images"):
-        animal, brain_area = collect_info_from_filename(filepath)
+        animal, brain_area, group = collect_info_from_filename(filepath)
         fig, _temp_, _temp_axis_ = process_image(
             filepath,
             is_masked=is_masked,
             pixel_size=pixel_size,
             animal=animal,
             brain_area=brain_area,
+            group=group
         )
 
         if np.sum(table_data.shape) == 0:
