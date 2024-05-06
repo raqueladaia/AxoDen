@@ -148,7 +148,8 @@ def collect_info_from_filename(filename):
         )
     animal = name_parts[0]
     brain_area = name_parts[1]
-    return animal, brain_area
+    group = name_parts[2]
+    return animal, brain_area, group
 
 def open_tif_image(img_path):
     """Open a tif image.
@@ -353,6 +354,7 @@ def process_image(
     pixel_size: float,
     animal: str = "animal_1",
     brain_area: str = "brain_area_1",
+    group: str = "group_1",
 ) -> tuple[plt.Figure, dict, dict]:
     """Process a single image and generate a control plot.
 
@@ -379,6 +381,7 @@ def process_image(
     # Append the information to the DataFrame for the image
     data = {'animal': animal, 
                 'brain_area': brain_area, 
+                'group': group,
                 'pixels_signal': w, 
                 'pixels_black': b, 
                 'pixels_total': all,
@@ -391,6 +394,7 @@ def process_image(
     # Append the information to the DataFrame for the axis
     axis_data = {'animal': animal,
                     'brain_area': brain_area,
+                    'group': group,
                     'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
                     'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
                     'signal_gray_x_ax': intensity_along_axis(img, 'x'),
@@ -398,7 +402,7 @@ def process_image(
 
     # Generate control plot
     fig = plt.figure(figsize=(8, 8))
-    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2 | Threshold: {thr:.2f}', weight='bold')
+    fig.suptitle(f'Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2| {group} | Threshold: {thr:.2f}', weight='bold')
     info_pie = {"labels": ['Area receiving\nprojections', 'Area without\nprojections'],
                 "sizes": [area_w, area_b],
                 "colors": ['white', 'grey']}
@@ -450,13 +454,14 @@ def process_folder(
 
     # Loop through all the images in the folder
     for filepath in tqdm(file_list, desc="Processing images"):
-        animal, brain_area = collect_info_from_filename(filepath)
+        animal, brain_area, group = collect_info_from_filename(filepath)
         fig, _temp_, _temp_axis_ = process_image(
             filepath,
             is_masked=is_masked,
             pixel_size=pixel_size,
             animal=animal,
             brain_area=brain_area,
+            group=group
         )
 
         if np.sum(table_data.shape) == 0:

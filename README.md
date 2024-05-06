@@ -110,7 +110,7 @@ Information about the project's license and any relevant terms.
 
 # TODO
 - Raquel
-  - text for initial tutorial
+  - text for initial tutorial --> Text needs to be improved.
   - double check that the units are correct, volume_projections.py line 377 seems strange
   - initial citation -> waiting for submission
   - go over all headers, text, naming
