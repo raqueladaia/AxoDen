@@ -11,8 +11,12 @@ jobs:
     runs-on: ${{ matrix.os }}-latest
     strategy:
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu]
+        # os: [ubuntu, macos, windows]
     steps:
+      - name: Install Tkinter for Ubuntu
+        if: matrix.os == 'ubuntu'
+        run: sudo apt-get install python3-tk
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
         with:
