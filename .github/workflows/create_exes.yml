@@ -24,4 +24,4 @@ jobs:
           spec: "axoden/gui/gui_projections_quantification.py"
           requirements: "requirements.txt"
           upload_exe_with_name: "Axoden-${{ matrix.os }}"
-          options: --onefile --name "Axoden"
+          options: --onefile --name "Axoden" --hidden-import="PIL._tkinter_finder"
