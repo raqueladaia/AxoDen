@@ -283,7 +283,12 @@ def load_table(file_path: str):
         return np.array([int(n) for n in re.findall(r'\d+', string_list)])  
 
     col_types = {"animal": str, "brain_area": str}
-    table_data = pd.read_csv(file_path, dtype=col_types)
+    table_data = pd.read_csv(file_path, dtype=col_types, index_col=False)
+
+    # remove any unnamed columns
+    # If the .csv was saved from the streamlit app, it will contain an unnamed index column
+    table_data = table_data.loc[:, ~table_data.columns.str.contains('^Unnamed')]
+
     for col in table_data.columns:
         if 'signal_bin' in col or 'signal_gray' in col:  # those are ndarray columns
             table_data[col] = table_data[col].apply(_string_to_ndarray)
@@ -457,7 +462,6 @@ def process_folder(
     file_list = get_tif_files(folder_path)
     if len(file_list) == 0:
         raise ValueError("No tif files found in the folder path")
-    n_images = len(file_list)
 
     # Loop through all the images in the folder
     for filepath in tqdm(file_list, desc="Processing images"):
@@ -726,18 +730,16 @@ def plot_signal_intensity_along_axis(project_name: str, df: pd.DataFrame, pixel_
 
 
 if __name__ == '__main__':
-        
     pixel_size = 0.75521  # um, based on 20x objective and the printed table next to the HALO PC
-    # folderpath = r"S:\Shared\custom_data_analysis\volume_projections\test_dataset"
-    # folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Manuscripts\2024_axon_quantification\fig3_compre_fluorophores\quantification_GFP"
-    folderpath = r"S:\Shared\lab_members\sandovalortega_raqueladaia\Projects\2023_ACC_project\projections_cropped_images\done"
-    is_image_rectangle = False
+    input_dir = "sample_images"
+    output_dir = "output_data"
+    is_masked = True
 
     # Collect the data and save it as a csv file
-    quant_projections, quant_along_axis = process_folder(folderpath, pixel_size, is_image_rectangle)
+    quant_projections, quant_along_axis = process_folder(input_dir, pixel_size, is_masked, output_folder=output_dir)
 
     # Plot the summary data
-    write_summary_data_plot(folderpath, quant_projections)
+    write_summary_data_plot(output_dir, quant_projections)
 
     # Plot the average of the signal intensity along the x and y axis
-    write_signal_intensity_along_axis_plot(folderpath, quant_along_axis, pixel_size)
+    write_signal_intensity_along_axis_plot(output_dir, quant_along_axis, pixel_size)

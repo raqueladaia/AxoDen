@@ -1,10 +1,11 @@
 import logging
+import pypdf
 import pandas as pd
 import numpy as np
-from PIL import UnidentifiedImageError
+import matplotlib
 import matplotlib.pyplot as plt
+from PIL import UnidentifiedImageError
 from matplotlib.figure import Figure
-import pypdf
 from typing import Tuple, Iterable
 from io import BytesIO
 
@@ -18,6 +19,8 @@ from axoden.gui.streamlit_app.pdf_utils import fig2pdfpage, pages2pdf
 from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis
 from axoden.gui.streamlit_app.pdf_utils import fig2stream
 
+
+matplotlib.use('Agg')  # fixes hanging tests due to use of tk backend
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.WARNING)
@@ -48,12 +51,12 @@ def invalidate_figure_cache():
 
 
 @st.cache_data
-def get_brain_regions(raw_files: UploadedFile) -> Iterable[str]:
+def get_brain_regions(raw_files: list[UploadedFile]) -> Iterable[str]:
     """
     Get the brain regions from the uploaded files.
 
     Args:
-        raw_files (UploadedFile): The raw uploaded files to process.
+        raw_files (List[UploadedFile]): The raw uploaded files to process.
 
     Returns:
         List[str]: A list of brain regions extracted from the raw files.
@@ -184,7 +187,7 @@ def process_images(
     return figures, table_data, table_data_axis
 
 
-def process_image_single(raw_image, pixel_size, is_masked, cache=None):
+def process_image_single(raw_image, pixel_size, is_masked, cache={}):
     """
     Process a single image.
 

@@ -64,3 +64,4 @@ build/
 .vscode/
 coverage.xml
 .coverage
+lcov.info

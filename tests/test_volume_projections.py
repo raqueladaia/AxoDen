@@ -1,12 +1,18 @@
+import os
+from glob import glob
 import pytest
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 from PIL import Image
 
-from axoden.volume_projections import remove_spines_plot, intensity_along_axis, remove_ticks_plot
-from axoden.volume_projections import collect_info_from_filename, generate_background_mask, collect_within_mask
-from axoden.volume_projections import convert_image_to_gray, binarize_image, count_pixels, compute_area
-from axoden.volume_projections import compute_threshold
+from axoden.volume_projections import (
+    remove_spines_plot, intensity_along_axis, remove_ticks_plot,
+    collect_info_from_filename, generate_background_mask, collect_within_mask,
+    convert_image_to_gray, binarize_image, count_pixels, compute_area,
+    compute_threshold, load_table, save_table,
+    process_folder, write_summary_data_plot, write_signal_intensity_along_axis_plot
+)
 
 
 def _sample_fig():
@@ -326,3 +332,83 @@ def test_compute_threshold():
     # using wide range here, we don't care about the exact value
     # we care only to get notified if something goes really wrong
     assert thr == pytest.approx(102, 10)
+
+
+def test_load_table_data():
+    expected_columns = sorted([
+        'animal', 'brain_area', 'group',
+        'pixels_signal', 'pixels_black', 'pixels_total',
+        'threshold', 'area_image', 'area_signal', 'area_black', 'area_img_um',
+        'percent_signal',
+    ])
+
+    # no index
+    table = load_table("tests/data/data.csv")
+    assert isinstance(table, pd.DataFrame)
+    assert sorted(table.columns) == expected_columns
+
+    # with index
+    table_index = load_table("tests/data/data_index.csv")
+    assert isinstance(table_index, pd.DataFrame)
+    assert sorted(table_index.columns) == expected_columns
+
+    assert np.all(table == table_index)
+
+
+def test_load_table_data_axis():
+    expected_columns = sorted([
+        'animal', 'brain_area', 'group',
+        'signal_bin_x_ax', 'signal_bin_y_ax',
+        'signal_gray_x_ax', 'signal_gray_y_ax',
+    ])
+
+    # no index
+    table = load_table("tests/data/data_axis.csv")
+    assert isinstance(table, pd.DataFrame)
+    assert sorted(table.columns) == expected_columns
+
+    # with index
+    table_index = load_table("tests/data/data_axis_index.csv")
+    assert isinstance(table_index, pd.DataFrame)
+    assert sorted(table_index.columns) == expected_columns
+
+    # we don't compare the np arrays in each cell
+    assert np.all(table[['animal', 'brain_area', 'group']] == table_index[['animal', 'brain_area', 'group']])
+
+def test_save_table(tmpdir):
+    table = load_table("tests/data/data.csv")
+    filename_saved = "data_save.csv"
+    path_saved = os.path.join(tmpdir, filename_saved)
+
+    save_table(table, tmpdir, path_saved)
+    table_saved = load_table(path_saved)
+    assert np.all(table == table_saved)
+
+
+def test_process_folder(tmpdir):
+    pixel_size = 0.75521
+    is_masked = True
+
+    # before processing, there should be no csv files saved
+    csv_files = glob(os.path.join(tmpdir, "*.csv"))
+    assert(len(csv_files) == 0)
+
+    data, data_axis = process_folder("tests/data", pixel_size, is_masked, output_folder=tmpdir, save=True)
+    assert isinstance(data, pd.DataFrame)
+    assert isinstance(data_axis, pd.DataFrame)
+
+    csv_files = glob(os.path.join(tmpdir, "*.csv"))
+    # two csv files should be saved
+    assert(len(csv_files) == 2)
+
+    # now write the summary data plots
+    pdf_files = glob(os.path.join(tmpdir, "*.pdf"))
+    assert len(pdf_files) == 0
+
+    write_summary_data_plot(tmpdir, data)
+    pdf_files = glob(os.path.join(tmpdir, "*.pdf"))
+    assert len(pdf_files) == 1
+
+    write_signal_intensity_along_axis_plot(tmpdir, data_axis, pixel_size)
+    pdf_files = glob(os.path.join(tmpdir, "*.pdf"))
+    assert len(pdf_files) == 2

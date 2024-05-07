@@ -1,9 +1,13 @@
 # Import python libraries
 import os
+import sys
 import tkinter as tk
 from tkinter import filedialog
 
-from volume_projections import (
+if os.getcwd() not in sys.path:
+    sys.path.append(os.getcwd())
+
+from axoden.volume_projections import (
     process_folder,
     write_summary_data_plot,
     write_signal_intensity_along_axis_plot,
