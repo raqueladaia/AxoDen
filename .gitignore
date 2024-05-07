@@ -49,7 +49,6 @@ __pycache__/
 *.fdb_latexmk
 *.synctex.gz
 *.synctex(busy)
-*.pdf
 .DS_Store
 .ipynb_checkpoints/
 *.egg-info/
