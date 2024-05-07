@@ -1,4 +1,3 @@
-# Import libraries
 import os
 import re
 import numpy as np
@@ -6,13 +5,8 @@ import pandas as pd
 from tqdm import tqdm
 from PIL import Image
 from pathlib import Path
-
 from typing import Tuple
-
-# Import the function to compute the dynamic threshold
 from skimage.filters import threshold_otsu
-
-# Import plotting libraries
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
@@ -251,12 +245,12 @@ def compute_area(img, pixel_size):
     return w, b, all
 
 def compute_threshold(img):
-            non_nan_values = img[~np.isnan(img)]
-            thr = threshold_otsu(np.array(non_nan_values))
-            # If the threshold is too low, set it to 20
-            if thr <= 10:
-                thr = np.int32(20)
-            return thr
+    non_nan_values = img[~np.isnan(img)]
+    thr = threshold_otsu(np.array(non_nan_values))
+    # If the threshold is too low, set it to 20
+    if thr <= 10:
+        thr = np.int32(20)
+    return thr
 
 def make_figures_pdf_editable():
     """Make the figures editable in Adobe Illustrator."""
@@ -324,7 +318,6 @@ def save_table(df: pd.DataFrame, folderpath: str, filename: str):
 
 
 def generate_control_plot(img, img_bin, msk, pixel_size, info_pie):
-
     # Create a grid for the subplots
     gs = gridspec.GridSpec(13, 11)
 
@@ -394,25 +387,25 @@ def process_image(
 
     # Append the information to the DataFrame for the image
     data = {'animal': animal, 
-                'brain_area': brain_area, 
-                'group': group,
-                'pixels_signal': w, 
-                'pixels_black': b, 
-                'pixels_total': all,
-                'threshold': thr, 
-                'area_image': area_img,
-                'area_signal': area_w,
-                'area_black': area_b,
-                'area_img_um': area_image_um}
+            'brain_area': brain_area, 
+            'group': group,
+            'pixels_signal': w, 
+            'pixels_black': b, 
+            'pixels_total': all,
+            'threshold': thr, 
+            'area_image': area_img,
+            'area_signal': area_w,
+            'area_black': area_b,
+            'area_img_um': area_image_um}
 
     # Append the information to the DataFrame for the axis
     axis_data = {'animal': animal,
-                    'brain_area': brain_area,
-                    'group': group,
-                    'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
-                    'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
-                    'signal_gray_x_ax': intensity_along_axis(img, 'x'),
-                    'signal_gray_y_ax': intensity_along_axis(img, 'y')}
+                 'brain_area': brain_area,
+                 'group': group,
+                 'signal_bin_x_ax': intensity_along_axis(img_bin, 'x'),
+                 'signal_bin_y_ax': intensity_along_axis(img_bin, 'y'),
+                 'signal_gray_x_ax': intensity_along_axis(img, 'x'),
+                 'signal_gray_y_ax': intensity_along_axis(img, 'y')}
 
     # Generate control plot
     fig = plt.figure(figsize=(8, 8))
@@ -528,7 +521,6 @@ def write_summary_data_plot(folder_path: str, df_input: pd.DataFrame, project_na
 
 
 def plot_summary_data(df_input, project_name):
-
     # Set fonts editable in Adobe Illustrator
     make_figures_pdf_editable()
 
@@ -749,4 +741,3 @@ if __name__ == '__main__':
 
     # Plot the average of the signal intensity along the x and y axis
     write_signal_intensity_along_axis_plot(folderpath, quant_along_axis, pixel_size)
-

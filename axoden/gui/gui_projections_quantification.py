@@ -1,12 +1,8 @@
 # Import python libraries
 import os
-import re
-import numpy as np
-import pandas as pd
 import tkinter as tk
 from tkinter import filedialog
 
-# Import the functions from the volume_projections.py file
 from volume_projections import (
     process_folder,
     write_summary_data_plot,

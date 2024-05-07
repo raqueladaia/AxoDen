@@ -3,14 +3,20 @@ import pandas as pd
 import numpy as np
 from PIL import UnidentifiedImageError
 import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
 import pypdf
+from typing import Tuple, Iterable
+from io import BytesIO
 
 import streamlit as st
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 from axoden.volume_projections import collect_info_from_filename
-from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis, process_image
-from axoden.gui.streamlit_app.pdf_utils import fig2pdfpage, fig2stream, pdf2stream, pages2pdf, join_pdfs
+from axoden.volume_projections import process_image
+from axoden.gui.streamlit_app.pdf_utils import fig2pdfpage, pages2pdf
+
+from axoden.volume_projections import plot_summary_data, plot_signal_intensity_along_axis
+from axoden.gui.streamlit_app.pdf_utils import fig2stream
 
 
 logger = logging.getLogger(__name__)
@@ -39,6 +45,89 @@ def invalidate_figure_cache():
     """Invalidates the figure cache."""
     st.session_state.figure_cache = {}
     logger.info('invalidated figure cache')
+
+
+@st.cache_data
+def get_brain_regions(raw_files: UploadedFile) -> Iterable[str]:
+    """
+    Get the brain regions from the uploaded files.
+
+    Args:
+        raw_files (UploadedFile): The raw uploaded files to process.
+
+    Returns:
+        List[str]: A list of brain regions extracted from the raw files.
+    """
+    logger.info('get_brain_regions')
+    brain_regions = set()
+    for raw_file in raw_files:
+        _, brain_region, _ = collect_info_from_filename(raw_file.name)
+        brain_regions.add(brain_region)
+    return list(brain_regions)
+
+
+def cached_plot_summary_data(table_data: pd.DataFrame, project_name: str) -> Tuple[Figure, BytesIO]:
+    """
+    Generate a cached plot of summary data.
+
+    Args:
+        table_data (pd.DataFrame): The input DataFrame containing the data for the plot.
+        project_name (str): The name of the project.
+
+    Returns:
+        Tuple[Figure, BytesIO]: A tuple containing the generated plot (Figure object) and the BytesIO stream.
+    """
+    fig = plot_summary_data(table_data, project_name)
+    fig_stream = fig2stream(fig)
+    return fig, fig_stream
+
+
+def cached_plot_signal_intensity_along_axis(
+        project_name: str,
+        table_data_axis: pd.DataFrame,
+        pixel_size: float
+    ) -> Tuple[Figure, BytesIO]:
+    """
+    Generate a plot of signal intensity along an axis.
+
+    Args:
+        project_name (str): The name of the project.
+        table_data_axis (pd.DataFrame): The table data containing the signal intensity values along the axis.
+        pixel_size (float): The size of each pixel.
+
+    Returns:
+        Tuple[Figure, BytesIO]: A tuple containing the generated figure and a BytesIO object representing the figure.
+
+    """
+    logger.info('creating signal intensity along axis')
+    fig = plot_signal_intensity_along_axis(project_name, table_data_axis, pixel_size)
+    fig_stream = fig2stream(fig)
+    return fig, fig_stream
+
+
+def get_figure_by_brain_region(
+        figures: list[pypdf.PdfWriter],
+        brain_areas: list[str]
+) -> dict[str, list[pypdf.PdfWriter]]:
+    """
+    Group the given figures by brain region.
+
+    Args:
+        figures (list[pypdf.PdfWriter]): A list of figures to be grouped.
+        brain_areas (list[str]): A list of brain areas corresponding to each figure.
+
+    Returns:
+        dict[str, list[pypdf.PdfWriter]]: A dictionary where the keys are brain regions and the values are lists of figures belonging to each brain region.
+    """
+    logger.info('get_figure_by_brain_region')
+    figures_out = {}
+    for fig, brain_area in zip(figures, brain_areas):
+        if brain_area not in figures_out:
+            figures_out[brain_area] = []
+
+        figures_out[brain_area].append(fig)
+
+    return figures_out
 
 
 def process_images(

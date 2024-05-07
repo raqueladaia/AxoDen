@@ -2,7 +2,6 @@ from io import BytesIO
 from pypdf import PdfReader, PdfWriter
 from pypdf._page import PageObject
 from matplotlib.figure import Figure
-
 from typing import Union
 
 
@@ -73,20 +72,6 @@ def pages2pdf(pages: list[PageObject]) -> PdfWriter:
     for page in pages:
         pdf.add_page(page)
     return pdf
-
-
-# @st.cache_data
-# def figures2pdf(_figures: Figure, metadata):
-#     if not _figures:
-#         return None
-
-#     pdf = PdfWriter()
-#     for fig in _figures:
-#         page = fig2pdfpage(fig)
-#         pdf.add_page(page)
-#     pdf_stream = BytesIO()
-#     pdf.write_stream(pdf_stream)
-#     return pdf_stream
 
 
 def join_pdfs(pdfs: list[Union[PdfReader, PdfWriter]]) -> BytesIO:
