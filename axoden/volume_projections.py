@@ -10,7 +10,7 @@ from skimage.filters import threshold_otsu
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
-import matplotlib.backends.backend_pdf
+import matplotlib.backends.backend_pdf  # this allows pyinstaller on github actions to detect pdf backend
 
 
 def intensity_along_axis(img, ax=None):

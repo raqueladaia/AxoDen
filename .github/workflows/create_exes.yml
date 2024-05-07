@@ -6,6 +6,9 @@ on: workflow_dispatch
   # pull_request:
   #   branches: [ "release" ]
 
+env:
+  VERSION: "v0.2.0"
+
 jobs:
   pyinstaller-builds:
     runs-on: ${{ matrix.os }}-latest
@@ -20,5 +23,10 @@ jobs:
           python_ver: "3.11"
           spec: "axoden/gui/gui_projections_quantification.py"
           requirements: "requirements.txt"
-          upload_exe_with_name: "Axoden-${{ matrix.os }}"
-          options: --onefile --name "Axoden" --hidden-import="PIL._tkinter_finder"
+          upload_exe_with_name: "Axoden-${{ matrix.os }}-${{ env.VERSION }}.zip"
+          options: --onefile --name "Axoden-${{ matrix.os }}-${{ env.VERSION }}.zip" --hidden-import="PIL._tkinter_finder"
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/Axoden-${{ matrix.os }}-${{ env.VERSION }}.zip
