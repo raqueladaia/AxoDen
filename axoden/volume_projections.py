@@ -10,6 +10,7 @@ from skimage.filters import threshold_otsu
 import matplotlib.pyplot as plt
 import seaborn as sns
 import matplotlib.gridspec as gridspec
+import matplotlib.backends.backend_pdf
 
 
 def intensity_along_axis(img, ax=None):
