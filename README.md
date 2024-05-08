@@ -66,6 +66,7 @@ If you want to mask your images to analyze a precise brain region:
 
 #### Running the GUI
 ![TkInter GUI](https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)
+<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="200">
 
 ## Installation
 
