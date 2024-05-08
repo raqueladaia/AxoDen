@@ -291,7 +291,6 @@ def make_figures_pdf_editable():
     plt.rcParams["pdf.fonttype"] = 42
     plt.rcParams["ps.fonttype"] = 42
     plt.rcParams["font.family"] = "sans-serif"
-    # plt.rcParams['font.sans-serif'] = 'Arial' # TODO: Arial not available
     plt.rcParams["font.sans-serif"] = "DejaVu Sans"
 
 

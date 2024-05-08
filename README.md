@@ -2,11 +2,27 @@
 ![Tests](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml/badge.svg?branch=main)
 ![Linting](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)
 
-#### TODO
 
-- [ ] add badge for pypi
-- [ ] Raquel to write quick overview
+## TODOs
+
 - [ ] add one figure from the paper here that describes what AxoDen does
+- [ ] set up github token to make it possible to upload release directly from gh action
+- [ ] Raquel to write quick overview here in README.md
+- [ ] Test deployed streamlit app with two concurrent users and 100+ files each
+- [ ] Decide on upload limit for deployed app
+- [ ] Add citation once app is submitted
+
+- [ ] Raquel to write text for initial tutorial --> Text needs to be improved.
+- [ ] Raquel to write section about how data is used on streamlit tutorial page. See readme.
+- [ ] Raquel to go over main streamlit app and correct/adapt naming
+- [ ] Raquel to double check that the units are correct, volume_projections.py line 443 seems strange
+- [x] Raquel to include sample images
+
+- [x] Pascal to set up gh action for unit testing
+- [x] Pascal to set up gh action for linting
+- [x] Pascal to set up gh action to build standalone executables
+- [ ] Pascal to add badge for pypi
+- [ ] Pascal to create gh action to update pip module from release branch
 
 ## Table of Contents
 
@@ -59,11 +75,11 @@ If you want to mask your images to analyze a precise brain region:
     - `Edit > Clear Outside`
     - `Image > Crop`
 6. If the signal to noise ratio needs to be enhanced:
-  - On the top menu select `Image > Adjust > Brightness > Crop`
-  - Decrease the "Maximum" value using the sliding bar to increase fluorescence intensity.
-  - Increase the "Minimum" value using the sliding bar to decrease background fluorescence
-  - Tip: Use the histogram (`Analyze > Histogram`) to confirm that the background fluorescence in the brain region does not contain zero values.
-7 Save the resulting image following the [AxoDen naming conventions](#naming-convention).
+    - On the top menu select `Image > Adjust > Brightness > Crop`
+    - Decrease the "Maximum" value using the sliding bar to increase fluorescence intensity.
+    - Increase the "Minimum" value using the sliding bar to decrease background fluorescence
+    - Tip: Use the histogram (`Analyze > Histogram`) to confirm that the background fluorescence in the brain region does not contain zero values.
+7. Save the resulting image following the [AxoDen naming conventions](#naming-convention).
 
 #### Running the GUI
 <img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="300">
@@ -104,6 +120,8 @@ you can start the tkinter with
   python -m axoden.gui.gui_projections_quantification
 ```
 
+If you get an error saying TkInter is not installed, see the [Install TkInter](#install-tkinter) section.
+
 To start the streamlit app locally, run:
 ```bash
   python -m axoden.gui.streamlit_app
@@ -121,28 +139,11 @@ If you want to make changes to axoden, you can clone the full code from the gith
   git clone https://github.com/raqueladaia/AxoDen.git
 ```
 
-#### Create a virtual environment
-```bash
-  python3.11 -m venv .venv
-```
-
-#### Activate the created virtual environment.
-
-Linux, Mac:
-```bash
-  source .venv/bin/activate
-```
-
-Window:
-```bash
-  .\.venv\Scripts\activate.bat
-```
-
-For more information regarding virtual environments, see https://docs.python.org/3/library/venv.html
+We suggest to set up a virual environment. For more information regarding virtual environments, see https://docs.python.org/3/library/venv.html
 
 #### Install the dependencies
 
-With your virtual environment activated, use pip to install the dependencies:
+Use pip to install the dependencies (typically in your virtual environment):
 
 ```bash
 pip install -r requirements_gui.txt
@@ -174,7 +175,7 @@ Mac (not tested):
 brew install python-tk
 ```
 
-#### Running Tkinter
+#### Running the GUI
 
 Simply execute the file `axoden/gui/gui_projections_quantification.py`, e.g. through a terminal:
 ```bash
@@ -191,7 +192,7 @@ You can run the streamlit app locally with
 
 This should automatically open a browser window to the app.
 If not, streamlit will post the URL where you can reach the web app,
-usually at (http://localhost:8501)
+usually at http://localhost:8501.
 
 
 This is the same interface as the [Streamlit Web App](https://axoden.streamlit.app).
@@ -215,28 +216,6 @@ Information about the project's license and any relevant terms.
 - docstrings for common functions
 - gui fixes and improvements, see below
 
-# TODO
-- Raquel
-  - text for initial tutorial --> Text needs to be improved.
-  - double check that the units are correct, volume_projections.py line 377 seems strange
-  - initial citation -> waiting for submission
-  - go over all headers, text, naming
-  - test how many images can be uploaded/used simultaneously --> Todo later with real images
-    - how should we limit file sizes?
-    - limit number of images
-  - how many concurrent users? How can we test?
-  - what sample images to include
-  - write section about how data is used on streamlit tutorial page: data is kept in memory
-- Pascal
-  - write section about how data is used in README.md: data is kept in memory
-  - remove guis from pip module
-  - pip module needs dependencies
-  - github action to build .exe for windows users
-  - update README with instructions for
-    - streamlit use locally
-    - gui locally
-    - pip install
-    - how to use axoden functionality
 
 
 # Proposal axoden use
