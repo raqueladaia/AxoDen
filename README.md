@@ -2,9 +2,11 @@
 ![Tests](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml/badge.svg?branch=main)
 ![Linting](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)
 
-TODO: add badges for pypi, license
+#### TODO
 
-TODO: Raquel to write quick overview
+- [ ] add badge for pypi
+- [ ] Raquel to write quick overview
+- [ ] add one figure from the paper here that describes what AxoDen does
 
 ## Table of Contents
 
@@ -65,11 +67,20 @@ If you want to mask your images to analyze a precise brain region:
 7 Save the resulting image following the [AxoDen naming conventions](#naming-convention).
 
 #### Running the GUI
-![TkInter GUI](https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)
-<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="200">
+<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="300">
+
+- Select the folder you prepared in the previous step. Use the `Select Folder` button to open a folder selection dialog
+- The output folder will be set to the subfolder `Axoden_output` but you can change it. If the folder does not exist, it will be created.
+- Make sure the pixel size is set to the correct value.
+This depends on both the objective used and your device!
+- If you use masked images as described in step [Image Masking](#image-masking), leave the check as it is. If you did not mask the images and want to process original, unmasked images, remove the check.
+- By default, AxoDen will collect all data, then plot the summary and finally the summary axis data.
+- Finally click `Run Volume Projections` to start the processing.
+- You will find the results in the _Output Folder_.
 
 ## Installation
 
+This section applies only to people who want to use AxoDen in their python code, or want to run AxoDen from code.
 There are two ways to install axoden: Through pip (recommended) or by cloning the repo from github.
 
 ### Pip Install
