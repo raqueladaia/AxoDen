@@ -10,7 +10,10 @@
 - [ ] Raquel to write quick overview here in README.md
 - [ ] Test deployed streamlit app with two concurrent users and 100+ files each
 - [ ] Decide on upload limit for deployed app
-- [ ] Add citation once app is submitted
+- [ ] Add citation here once publication is submitted
+- [ ] Add citation to streamlit app once publication is submitted
+- [ ] Add link to publication
+- [ ] make repo public once we're ready :muscle:
 
 - [ ] Raquel to write text for initial tutorial --> Text needs to be improved.
 - [ ] Raquel to write section about how data is used on streamlit tutorial page. See readme.
