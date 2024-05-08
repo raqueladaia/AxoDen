@@ -200,72 +200,43 @@ usually at http://localhost:8501.
 
 This is the same interface as the [Streamlit Web App](https://axoden.streamlit.app).
 
-## Contributing
+# Using axoden in your code
+Below you find a few examples of how to use axoden.
 
-Guidelines for contributing to the project and how to submit changes.
+You can process a single image. This will not save any results or plots.
+```python
+import axoden
 
-## License
-
-Information about the project's license and any relevant terms.
-
-# Done Pascal
-- deploy from raqueladaia/AxoDen --> organize call 1-2h
-- use release branch for this
-- how is the axoden pip package used? --> Pascal to propose
-- themeing, colors etc. -> UPenn colors ok
-- bug fixes, see below
-- csv loading and saving is compatible with saving csv data from streamlit (same format)
-- proposal for axoden use as a package
-- docstrings for common functions
-- gui fixes and improvements, see below
-
-
-
-# Proposal axoden use
-```
-# process a single image
-img_path = "samples_images/0001_dsRed.tif"
-fig, data, data_axis = axoden.process_image(file_name, is_masked=True, pixel_size=0.75)
+img_path = "test_images/745_TH-CL.tif"
+fig, data, data_axis = axoden.process_image(img_path, is_masked=True, pixel_size=0.75521)
 fig.show()
+```
 
-# process a folder and save the results
-input_folder = "samples/"
+Or you can process all images in a folder and save the results, similar to what the gui does:
+```python
+import axoden
+
+input_folder = "test_images"
 output_folder = "results"
-df_data, df_data_axis = axoden.process_folder(input_folder, pixel_size=0.75, is_masked=True, output_folder=output_folder)
-axoden.write_summary_data_plot(output_folder, df_data, project_name = "my project"):
-axoden.write_signal_intensity_along_axis_plot(output_folder, df_data_axis, pixel_size=0.75, project_name = "my_project")
+df_data, df_data_axis = axoden.process_folder(input_folder, pixel_size=0.75521, is_masked=True, output_folder=output_folder)
+axoden.write_summary_data_plot(output_folder, df_data, project_name="my project"):
+axoden.write_signal_intensity_along_axis_plot(output_folder, df_data_axis, pixel_size=0.75521, project_name="my_project")
+```
 
+It is also possible to not save any output, this might be useful if you further process the results.
+```python
+import axoden
 
-# process a folder and show the results
-input_folder = "samples/"
-df_data, df_data_axis = axoden.process_folder(input_folder, pixel_size=0.75, is_masked=True, save=False)
+input_folder = "test_images"
+df_data, df_data_axis = axoden.process_folder(input_folder, pixel_size=0.75521, is_masked=True, save=False)
 
 output_folder = "results"
 axoden.save_table(df_data, output_folder, "projections_quantifications.csv")
 axoden.save_table(df_data_axis, output_folder, "projections_quantification_along_axis.csv")
 
 fig_data = axoden.plot_summary_data(df_data, "my_project")
-fig_data_axis = axoden.plot_signal_intensity_along_axis("my_project", df_data_axis, pixel_size=0.75):
+fig_data_axis = axoden.plot_signal_intensity_along_axis("my_project", df_data_axis, pixel_size=0.75521):
 
 fig_data.show()
 fig_data_axis.show()
 ```
-
-# Changes for tk GUI
-- added folder dialog
-- set boolean defaults
-- removed window.geometry(...), this was too small, removing it sets it to fit everything in the window automatically. But it might behave differently on windows, need to check!
-- add output folder --> separates input images and output 
-- suggestion: remove separate collect and plot data/axis to make it simpler? But it's working right now
-
-# Bugs fixed:
-## saving axis data is saving it as the string representation, not the full data!
-## loading animal col from csv resuled in int colum, so animal named "0004" would become 4
-
-animal,brain_area,signal_bin_x_ax,signal_bin_y_ax,signal_gray_x_ax,signal_gray_y_ax
-0004,Insula-GFP,[0 0 0 ... 3 3 1],[0 0 0 ... 0 0 0],[322. 335. 351. ... 505. 547. 461.],[ 39.  83. 134. ... 123.  76.  23.]
-0006,NAcc,[40 40 47 ... 13 13 14],[  0   0   0 ... 270 264 250],[4769. 4796. 4871. ... 4907. 5176. 5235.],[7.0000e+00 1.6000e+01 3.0000e+01 ... 1.7350e+04 1.7080e+04 1.6103e+04]
-0005,Insula-GFP,[0 0 0 ... 3 3 1],[0 0 0 ... 0 0 0],[322. 335. 351. ... 505. 547. 461.],[ 39.  83. 134. ... 123.  76.  23.]
-0002,Insula-GFP,[0 0 0 ... 3 3 1],[0 0 0 ... 0 0 0],[322. 335. 351. ... 505. 547. 461.],[ 39.  83. 134. ... 123.  76.  23.]
-0001,Insula-GFP,[0 0 0 ... 3 3 1],[0 0 0 ... 0 0 0],[322. 335. 351. ... 505. 547. 461.],[ 39.  83. 134. ... 123.  76.  23.]
-0001,NAcc,[40 40 47 ... 13 13 14],[  0   0   0 ... 270 264 250],[4769. 4796. 4871. ... 4907. 5176. 5235.],[7.0000e+00 1.6000e+01 3.0000e+01 ... 1.7350e+04 1.7080e+04 1.6103e+04]
