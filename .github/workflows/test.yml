@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
 
-name: check
+name: test
 
 on: workflow_dispatch
   # push:
@@ -10,7 +10,7 @@ on: workflow_dispatch
   #   branches: [ "main" ]
     
 concurrency:
-  group: check-${{ github.ref }}
+  group: test-${{ github.ref }}
   cancel-in-progress: true
   
 jobs:
@@ -31,7 +31,7 @@ jobs:
           - macos-latest
           - windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup python for test ${{ matrix.py }}
