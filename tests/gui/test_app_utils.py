@@ -19,13 +19,13 @@ def test_invalidate_figure_cache():
         assert mock_cache.figure_cache == {}
 
 def test_get_brain_regions():
-    uploaded_file1 = _uploaded_file("2111_Insula-GFP.tif")
-    uploaded_file2 = _uploaded_file("3518_dsRed.tif")
+    uploaded_file1 = _uploaded_file("745_TH-PL.tif")
+    uploaded_file2 = _uploaded_file("746_TH-CL.tif")
     brain_regions = get_brain_regions([uploaded_file1, uploaded_file2])
 
     assert len(brain_regions) == 2
-    assert "Insula-GFP" in brain_regions
-    assert "dsRed" in brain_regions
+    assert "TH-PL" in brain_regions
+    assert "TH-CL" in brain_regions
 
 def test_get_figure_by_brain_region():
     pdf_1 = _sample_pdf_writer()
@@ -42,8 +42,8 @@ def test_process_images():
     at = _streamlit_app()
 
     files = [
-        {"animal": "2111", "brain_area": "Insula-GFP", "file_name": "2111_Insula-GFP.tif"},
-        {"animal": "3518", "brain_area": "dsRed", "file_name": "3518_dsRed.tif"},
+        {"animal": "745", "brain_area": "TH-PL", "file_name": "745_TH-PL.tif"},
+        {"animal": "746", "brain_area": "TH-CL", "file_name": "746_TH-CL.tif"},
     ]
     n_uploades = len(files)
 
@@ -69,9 +69,9 @@ def test_process_images():
 def test_process_image_single():
     at = _streamlit_app()
 
-    animal = "2111"
-    brain_area = "Insula-GFP"
-    file_name = "2111_Insula-GFP.tif"
+    animal = "745"
+    brain_area = "TH-PL"
+    file_name = "745_TH-PL.tif"
 
     pixel_size = 0.75521
     is_masked = True
@@ -93,7 +93,7 @@ def test_process_image_single():
 
 
 def test_process_image_single_cache():
-    file_name = "2111_Insula-GFP.tif"
+    file_name = "745_TH-PL.tif"
     pixel_size = 0.75521
     is_masked = True
     uploaded_file = _uploaded_file(file_name)
@@ -109,7 +109,7 @@ def test_process_image_single_cache():
 @patch('axoden.gui.streamlit_app.app_utils.st.warning')
 @patch('axoden.gui.streamlit_app.app_utils.st.stop')
 def test_process_image_single_error(warning_mock, stop_mock):
-    file_name = "2111_Insula-GFP.tif"
+    file_name = "745_TH-PL.tif"
     pixel_size = 0.75521
     is_masked = True
     uploaded_file = _uploaded_file(file_name)

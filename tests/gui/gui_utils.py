@@ -9,7 +9,7 @@ from streamlit.proto.Common_pb2 import FileURLs
 
 
 def _uploaded_file(file_name, test_data=False):
-    base_dir = "tests/data" if test_data else "sample_images"
+    base_dir = "tests/data" if test_data else "test_images"
     with open (os.path.join(base_dir, file_name), "rb") as f:
         raw_file = f.read()
 

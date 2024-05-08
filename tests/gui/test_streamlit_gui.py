@@ -32,7 +32,7 @@ def test_app_upload():
 
     pixel_size = 0.75521
     is_masked = True
-    file_name = "2111_Insula-GFP.tif"
+    file_name = "745_TH-PL.tif"
 
     uploaded_file = _uploaded_file(file_name)
 
