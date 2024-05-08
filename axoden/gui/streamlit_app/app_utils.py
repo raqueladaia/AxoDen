@@ -6,7 +6,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from PIL import UnidentifiedImageError
 from matplotlib.figure import Figure
-from typing import Tuple, Iterable
+from typing import Tuple, Iterable, List, Dict
 from io import BytesIO
 
 import streamlit as st
@@ -51,7 +51,7 @@ def invalidate_figure_cache():
 
 
 @st.cache_data
-def get_brain_regions(raw_files: list[UploadedFile]) -> Iterable[str]:
+def get_brain_regions(raw_files: List[UploadedFile]) -> Iterable[str]:
     """
     Get the brain regions from the uploaded files.
 
@@ -109,18 +109,18 @@ def cached_plot_signal_intensity_along_axis(
 
 
 def get_figure_by_brain_region(
-        figures: list[pypdf.PdfWriter],
-        brain_areas: list[str]
-) -> dict[str, list[pypdf.PdfWriter]]:
+        figures: List[pypdf.PdfWriter],
+        brain_areas: List[str]
+) -> Dict[str, List[pypdf.PdfWriter]]:
     """
     Group the given figures by brain region.
 
     Args:
-        figures (list[pypdf.PdfWriter]): A list of figures to be grouped.
-        brain_areas (list[str]): A list of brain areas corresponding to each figure.
+        figures (List[pypdf.PdfWriter]): A list of figures to be grouped.
+        brain_areas (List[str]): A list of brain areas corresponding to each figure.
 
     Returns:
-        dict[str, list[pypdf.PdfWriter]]: A dictionary where the keys are brain regions and the values are lists of figures belonging to each brain region.
+        Dict[str, List[pypdf.PdfWriter]]: A dictionary where the keys are brain regions and the values are lists of figures belonging to each brain region.
     """
     logger.info('get_figure_by_brain_region')
     figures_out = {}
@@ -134,23 +134,23 @@ def get_figure_by_brain_region(
 
 
 def process_images(
-        raw_files: list[UploadedFile],
+        raw_files: List[UploadedFile],
         pixel_size: float,
         is_masked: bool,
-        cache: dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)] = None) \
-            -> tuple[list[plt.Figure], pd.DataFrame, pd.DataFrame]:
+        cache: Dict[Tuple[str, float, bool], Tuple[pypdf.PdfWriter, dict, dict]] = None) \
+            -> Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]:
     """
     Process a list of raw image files.
 
     Args:
-        raw_files (list[UploadedFile]): A list of raw image files.
+        raw_files (List[UploadedFile]): A list of raw image files.
         pixel_size (float): The pixel size.
         is_masked (bool): A flag indicating whether the images are masked.
-        cache (dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)], optional):
+        cache (Dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)], optional):
             Use st.session_state.figure_cache as an intermediate cache. Defaults to None.
 
     Returns:
-        tuple[list[plt.Figure], pd.DataFrame, pd.DataFrame]: A tuple containing the processed figures,
+        Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]: A tuple containing the processed figures,
             table data, and table data axis.
     """
     
