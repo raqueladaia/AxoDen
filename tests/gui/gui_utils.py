@@ -1,21 +1,23 @@
 import os
-import pypdf
 from uuid import uuid4
+
 import matplotlib.pyplot as plt
-from streamlit.testing.v1 import AppTest
-from streamlit.runtime.uploaded_file_manager import UploadedFile
-from streamlit.runtime.uploaded_file_manager import UploadedFile, UploadedFileRec
+import pypdf
 from streamlit.proto.Common_pb2 import FileURLs
+from streamlit.runtime.uploaded_file_manager import UploadedFile, UploadedFileRec
+from streamlit.testing.v1 import AppTest
 
 
 def _uploaded_file(file_name, test_data=False):
     base_dir = "tests/data" if test_data else "test_images"
-    with open (os.path.join(base_dir, file_name), "rb") as f:
+    with open(os.path.join(base_dir, file_name), "rb") as f:
         raw_file = f.read()
 
     file_id = str(uuid4())
 
-    record = UploadedFileRec(file_id=file_id, name=file_name, type='image/tiff', data=raw_file)
+    record = UploadedFileRec(
+        file_id=file_id, name=file_name, type="image/tiff", data=raw_file
+    )
     upload_url = f"/_stcore/upload_file/{uuid4()}/{file_id}"
     file_urls = FileURLs(upload_url=upload_url, delete_url=upload_url)
 

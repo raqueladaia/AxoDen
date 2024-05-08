@@ -1,17 +1,29 @@
 import os
 from glob import glob
-import pytest
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import pytest
 from PIL import Image
 
 from axoden.volume_projections import (
-    remove_spines_plot, intensity_along_axis, remove_ticks_plot,
-    collect_info_from_filename, generate_background_mask, collect_within_mask,
-    convert_image_to_gray, binarize_image, count_pixels, compute_area,
-    compute_threshold, load_table, save_table,
-    process_folder, write_summary_data_plot, write_signal_intensity_along_axis_plot
+    binarize_image,
+    collect_info_from_filename,
+    collect_within_mask,
+    compute_area,
+    compute_threshold,
+    convert_image_to_gray,
+    count_pixels,
+    generate_background_mask,
+    intensity_along_axis,
+    load_table,
+    process_folder,
+    remove_spines_plot,
+    remove_ticks_plot,
+    save_table,
+    write_signal_intensity_along_axis_plot,
+    write_summary_data_plot,
 )
 
 
@@ -21,40 +33,41 @@ def _sample_fig():
     return fig, ax
 
 
-@pytest.mark.parametrize("loc",
+@pytest.mark.parametrize(
+    "loc",
     (
-        ['top', 'right', 'bottom', 'left'],
-        ['top', 'bottom'],
-        ['left'],
-    )
+        ["top", "right", "bottom", "left"],
+        ["top", "bottom"],
+        ["left"],
+    ),
 )
 def test_remove_spines_plot(loc):
     _, ax = _sample_fig()
 
-    loc_all = ['top', 'right', 'bottom', 'left']
-    for l in loc_all:
-        assert ax.spines[l].get_visible()
+    loc_all = ["top", "right", "bottom", "left"]
+    for spines_loc in loc_all:
+        assert ax.spines[spines_loc].get_visible()
     remove_spines_plot(ax, loc)
-    
-    for l in loc:
+
+    for spines_loc in loc:
         # if l in loc, then it should be invisible
-        assert ax.spines[l].get_visible() != (l in loc)
+        assert ax.spines[spines_loc].get_visible() != (spines_loc in loc)
 
 
 def test_intensity_along_axis():
     img = np.array(
         [
-            [0, 0, 0, 0, 0, 0], # 0
-            [0, 0, 0, 1, 0, 1], # 2
-            [0, 1, 1, 0, 0, 1], # 3
-            [1, 1, 1, 1, 1, 1], # 6
-            #1, 2, 2, 2, 1, 3
+            [0, 0, 0, 0, 0, 0],  # 0
+            [0, 0, 0, 1, 0, 1],  # 2
+            [0, 1, 1, 0, 0, 1],  # 3
+            [1, 1, 1, 1, 1, 1],  # 6
+            # 1, 2, 2, 2, 1, 3
         ]
     )
 
     expected_y = np.array([0, 2, 3, 6])
     expected_x = np.array([1, 2, 2, 2, 1, 3])
-    
+
     # default, int
     res_x, res_y = intensity_along_axis(img)
     assert np.all(res_x == expected_x)
@@ -66,16 +79,16 @@ def test_intensity_along_axis():
     assert np.all(res_y == expected_y.astype(np.float32))
 
     # ax=x
-    res_x = intensity_along_axis(img, ax='x')
+    res_x = intensity_along_axis(img, ax="x")
     assert np.all(res_x == expected_x)
 
     # ax=y
-    res_y = intensity_along_axis(img, ax='y')
+    res_y = intensity_along_axis(img, ax="y")
     assert np.all(res_y == expected_y)
 
     # error handling
     with pytest.raises(ValueError):
-        intensity_along_axis(img, ax='wrong_value')
+        intensity_along_axis(img, ax="wrong_value")
 
 
 def test_remove_ticks_plot():
@@ -85,28 +98,30 @@ def test_remove_ticks_plot():
     assert ax.get_xticks().shape[0] != 0
     assert ax.get_yticks().shape[0] != 0
 
-    remove_ticks_plot(ax, loc='all')
+    remove_ticks_plot(ax, loc="all")
     assert ax.get_xticks().shape[0] == 0
     assert ax.get_yticks().shape[0] == 0
-    remove_ticks_plot(ax, loc='all')  # calling multiple times should work
+    remove_ticks_plot(ax, loc="all")  # calling multiple times should work
     assert ax.get_xticks().shape[0] == 0
     assert ax.get_yticks().shape[0] == 0
 
     _, ax = _sample_fig()
-    remove_ticks_plot(ax, loc='x')
+    remove_ticks_plot(ax, loc="x")
     assert ax.get_xticks().shape[0] == 0
     assert ax.get_yticks().shape[0] != 0
 
     _, ax = _sample_fig()
-    remove_ticks_plot(ax, loc='y')
+    remove_ticks_plot(ax, loc="y")
     assert ax.get_xticks().shape[0] != 0
     assert ax.get_yticks().shape[0] == 0
 
     _, ax = _sample_fig()
     with pytest.raises(ValueError):
-        remove_ticks_plot(ax, loc='wrong_Argument')
+        remove_ticks_plot(ax, loc="wrong_Argument")
 
-@pytest.mark.parametrize(("filename", "expected_animal", "expected_brain_area", "expected_group"),
+
+@pytest.mark.parametrize(
+    ("filename", "expected_animal", "expected_brain_area", "expected_group"),
     (
         ("0001_ACC_grp1.tif", "0001", "ACC", "grp1"),
         ("1.1_ACC.x_group.2.tif", "1.1", "ACC.x", "group.2"),
@@ -115,9 +130,11 @@ def test_remove_ticks_plot():
         ("0001_ACC_groupx_unused.tif", "0001", "ACC", "groupx"),
         ("0001_ACC-SUB_grp-x.tif", "0001", "ACC-SUB", "grp-x"),
         ("0001_ACC-SUB_GRP1_unused_unused2.tif", "0001", "ACC-SUB", "GRP1"),
-    )
+    ),
 )
-def test_collect_info_from_filename(filename, expected_animal, expected_brain_area, expected_group):
+def test_collect_info_from_filename(
+    filename, expected_animal, expected_brain_area, expected_group
+):
     animal, brain_area, group = collect_info_from_filename(filename)
 
     assert animal == expected_animal
@@ -140,11 +157,11 @@ def test_collect_info_from_filename_error():
 def test_generate_mask(dtype, dim, is_masked):
     img = np.array(
         [
-            [0, 0, 0, 0, 0, 0], # 0
-            [0, 0, 0, 1, 0, 1], # 2
-            [0, 1, 1, 0, 0, 1], # 3
-            [1, 1, 1, 1, 1, 1], # 6
-            #1, 2, 2, 2, 1, 3
+            [0, 0, 0, 0, 0, 0],  # 0
+            [0, 0, 0, 1, 0, 1],  # 2
+            [0, 1, 1, 0, 0, 1],  # 3
+            [1, 1, 1, 1, 1, 1],  # 6
+            # 1, 2, 2, 2, 1, 3
         ]
     ).astype(dtype)
     expected_mask = img == 0
@@ -154,7 +171,7 @@ def test_generate_mask(dtype, dim, is_masked):
     elif dim == 2:
         pass  # already 2d
     else:
-        raise ValueError('only dim 3 and dim 2 are tested here')
+        raise ValueError("only dim 3 and dim 2 are tested here")
 
     mask = generate_background_mask(img, is_masked)
     assert mask.dtype == "bool"
@@ -162,16 +179,16 @@ def test_generate_mask(dtype, dim, is_masked):
     if is_masked:
         assert np.all(mask == expected_mask)
     else:
-        assert np.all(mask == False)
+        assert np.all(mask == False)  # noqa: E712
 
-    #PIL Image
+    # PIL Image
     img_pil = Image.fromarray(img.astype(np.uint8))
     mask = generate_background_mask(img_pil, is_masked)
     assert mask.dtype == "bool"
     if is_masked:
         assert np.all(mask == expected_mask)
     else:
-        assert np.all(mask == False)
+        assert np.all(mask == False)  # noqa: E712
 
 
 def test_collect_within_mask():
@@ -183,7 +200,7 @@ def test_collect_within_mask():
             [1, 1, 1, 1, 1, 1],
         ]
     ).astype(np.float32)
-    
+
     mask = np.array(
         [
             [0, 0, 0, 0, 0, 0],
@@ -217,7 +234,7 @@ def test_convert_image_to_gray():
     ).astype(np.uint8)
     img_pil = Image.fromarray(np.stack([img, img, img], axis=-1))
     img_gray = convert_image_to_gray(img_pil)
-    assert img_gray.mode == 'L'
+    assert img_gray.mode == "L"
 
     img_gray = np.array(img_gray)
     assert np.all(img_gray == img)
@@ -242,6 +259,7 @@ def test_binarize_image(dtype, threshold):
 
     # ignoring dtype for testing
     assert np.all(result == expected_result)
+
 
 @pytest.mark.parametrize("dtype", (np.uint8, np.int64, np.float32))
 def test_count_pixels(dtype):
@@ -269,6 +287,7 @@ def test_count_pixels(dtype):
     assert n_black == expected_n_black
     assert n_total == expected_n_total
 
+
 def test_count_pixels_error():
     img = np.array(
         [
@@ -284,7 +303,7 @@ def test_count_pixels_error():
 
     img = np.array(
         [
-            [0.5, 0, 1, 0, 0], # 0.5 is not a binarized image
+            [0.5, 0, 1, 0, 0],  # 0.5 is not a binarized image
             [0, 1, 0, 1, 0],
             [0, 1, 0, 0, 0],
             [1, 1, 0, 1, 1],
@@ -310,10 +329,10 @@ def test_compute_area(pixel_size):
     n_total = 20  # ignoring nans
     area_single_pixel = pixel_size**2
 
-    w, b, all = compute_area(img, pixel_size)
+    w, b, total = compute_area(img, pixel_size)
     assert w == n_white * area_single_pixel
     assert b == n_black * area_single_pixel
-    assert all == n_total * area_single_pixel
+    assert total == n_total * area_single_pixel
 
 
 def test_compute_threshold():
@@ -335,12 +354,22 @@ def test_compute_threshold():
 
 
 def test_load_table_data():
-    expected_columns = sorted([
-        'animal', 'brain_area', 'group',
-        'pixels_signal', 'pixels_black', 'pixels_total',
-        'threshold', 'area_image', 'area_signal', 'area_black', 'area_img_um',
-        'percent_signal',
-    ])
+    expected_columns = sorted(
+        [
+            "animal",
+            "brain_area",
+            "group",
+            "pixels_signal",
+            "pixels_black",
+            "pixels_total",
+            "threshold",
+            "area_image",
+            "area_signal",
+            "area_black",
+            "area_img_um",
+            "percent_signal",
+        ]
+    )
 
     # no index
     table = load_table("tests/data/data.csv")
@@ -356,11 +385,17 @@ def test_load_table_data():
 
 
 def test_load_table_data_axis():
-    expected_columns = sorted([
-        'animal', 'brain_area', 'group',
-        'signal_bin_x_ax', 'signal_bin_y_ax',
-        'signal_gray_x_ax', 'signal_gray_y_ax',
-    ])
+    expected_columns = sorted(
+        [
+            "animal",
+            "brain_area",
+            "group",
+            "signal_bin_x_ax",
+            "signal_bin_y_ax",
+            "signal_gray_x_ax",
+            "signal_gray_y_ax",
+        ]
+    )
 
     # no index
     table = load_table("tests/data/data_axis.csv")
@@ -373,7 +408,11 @@ def test_load_table_data_axis():
     assert sorted(table_index.columns) == expected_columns
 
     # we don't compare the np arrays in each cell
-    assert np.all(table[['animal', 'brain_area', 'group']] == table_index[['animal', 'brain_area', 'group']])
+    assert np.all(
+        table[["animal", "brain_area", "group"]]
+        == table_index[["animal", "brain_area", "group"]]
+    )
+
 
 def test_save_table(tmpdir):
     table = load_table("tests/data/data.csv")
@@ -391,15 +430,17 @@ def test_process_folder(tmpdir):
 
     # before processing, there should be no csv files saved
     csv_files = glob(os.path.join(tmpdir, "*.csv"))
-    assert(len(csv_files) == 0)
+    assert len(csv_files) == 0
 
-    data, data_axis = process_folder("tests/data", pixel_size, is_masked, output_folder=tmpdir, save=True)
+    data, data_axis = process_folder(
+        "tests/data", pixel_size, is_masked, output_folder=tmpdir, save=True
+    )
     assert isinstance(data, pd.DataFrame)
     assert isinstance(data_axis, pd.DataFrame)
 
     csv_files = glob(os.path.join(tmpdir, "*.csv"))
     # two csv files should be saved
-    assert(len(csv_files) == 2)
+    assert len(csv_files) == 2
 
     # now write the summary data plots
     pdf_files = glob(os.path.join(tmpdir, "*.pdf"))

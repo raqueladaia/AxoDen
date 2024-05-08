@@ -1,10 +1,20 @@
-import pypdf
-from axoden.gui.streamlit_app.pdf_utils import fig2pdfpage, fig2stream, join_pdfs, pages2pdf, pdf2stream
-
-
 from io import BytesIO
 
-from gui_utils import _sample_fig, _sample_pdf_page, _sample_pdf_reader, _sample_pdf_writer
+import pypdf
+from gui_utils import (
+    _sample_fig,
+    _sample_pdf_page,
+    _sample_pdf_reader,
+    _sample_pdf_writer,
+)
+
+from axoden.gui.streamlit_app.pdf_utils import (
+    fig2pdfpage,
+    fig2stream,
+    join_pdfs,
+    pages2pdf,
+    pdf2stream,
+)
 
 
 def test_join_pdfs():
