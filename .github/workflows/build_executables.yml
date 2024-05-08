@@ -20,10 +20,9 @@ jobs:
           - os: ubuntu
             file_extension: pgk
           # - os: macos
-          #   file_extension: "Axoden.app"
+          #   file_extension: "app"
           # - os: windows
-          #   file_extension: "Axoden.exe"
-        # os: [ubuntu, macos, windows]
+          #   file_extension: "exe"
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
