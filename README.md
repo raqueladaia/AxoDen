@@ -41,12 +41,12 @@ So all the files that you want to process should be in a folder you prepare.
 
 #### Naming Convention
 - All images need to be in **.tif format**.
-- The filename of the images matter.
-  - Rename the files to the following format: _subjectID_brainregion_group_WhateverYouWant.tif_
-  - Tip: Do not use spaces in the name of the file
-  - Tip: the underscore ("_") character is used to separate the _subjectID_, _brainregion_ and _group_
-  - Tip: at least _subjectID_ and _brainregion_ are required, e.g. "animal1_ACC.tif" is valid, "myfile.tif" does not work
-  - Tip: The _group_ is optional, but can be helpful if you want to further process the output from Axoden, e.g. if you want to do your own statistics.
+- The filename of the images matter! Rename the files to the following format: _subjectID_brainregion_group_WhateverYouWant.tif_
+> [!TIP]
+>  - Tip: Do not use spaces in the name of the file
+>  - Tip: the underscore ("_") character is used to separate the _subjectID_, _brainregion_ and _group_
+>  - Tip: at least _subjectID_ and _brainregion_ are required, e.g. "animal1_ACC.tif" is valid, "myfile.tif" does not work
+>  - Tip: The _group_ is optional, but can be helpful if you want to further process the output from Axoden, e.g. if you want to do your own statistics.
 
 #### Image Masking
 
