@@ -1,7 +1,6 @@
 # Axoden
 ![Tests](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml/badge.svg?branch=main)
 ![Linting](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)
-![License](https://github.com/raqueladaia/AxoDen/blob/main/LICENSE)
 
 TODO: add badges for pypi, license
 
@@ -10,12 +9,12 @@ TODO: Raquel to write quick overview
 ## Table of Contents
 
 - [Usage](#usage)
+  - [Streamlit App](#streamlit-app)
+  - [Standalone GUI](#standalone-gui)
 - [Installation](#installation)
   - [With pip](#pip-install)
   - [Git clone](#clone-from-github)
 - [Contributing](#contributing)
-- [License](#license)
-  - add license file
 
 ## Usage
 
