@@ -87,6 +87,7 @@ If you want to mask your images to analyze a precise brain region:
 > Use the histogram (`Analyze > Histogram`) to confirm that the background fluorescence in the brain region does not contain zero values.
 
 #### Running the GUI
+Execute the application, and you should be presented with the follwoing GUI:
 <img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="300">
 
 - Select the folder you prepared in the previous step. Use the `Select Folder` button to open a folder selection dialog
