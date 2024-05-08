@@ -43,10 +43,10 @@ So all the files that you want to process should be in a folder you prepare.
 - All images need to be in **.tif format**.
 - The filename of the images matter! Rename the files to the following format: _subjectID_brainregion_group_WhateverYouWant.tif_
 > [!TIP]
->  - Tip: Do not use spaces in the name of the file
->  - Tip: the underscore ("_") character is used to separate the _subjectID_, _brainregion_ and _group_
->  - Tip: at least _subjectID_ and _brainregion_ are required, e.g. "animal1_ACC.tif" is valid, "myfile.tif" does not work
->  - Tip: The _group_ is optional, but can be helpful if you want to further process the output from Axoden, e.g. if you want to do your own statistics.
+>  - Do not use spaces in the name of the file
+>  - The underscore ("_") character is used to separate the _subjectID_, _brainregion_ and _group_
+>  - At least _subjectID_ and _brainregion_ are required, e.g. "animal1_ACC.tif" is valid, "myfile.tif" does not work
+>  - The _group_ is optional, but can be helpful if you want to further process the output from Axoden, e.g. if you want to do your own statistics.
 
 #### Image Masking
 
@@ -55,10 +55,9 @@ If you want to mask your images to analyze a precise brain region:
 2. Download ImageJ or FIJI if you do not have it installed.
 3. Open the image of interest.
 4. Select the freehand selection tool on the top menu.
-5. Draw the boundaries of the region of interest according to the overlay you created in step 1.
-  On the top menu select in order:
-  - `Edit > Clear Outside`
-  - `Image > Crop`
+5. Draw the boundaries of the region of interest according to the overlay you created in step 1. On the top menu select in order:
+    - `Edit > Clear Outside`
+    - `Image > Crop`
 6. If the signal to noise ratio needs to be enhanced:
   - On the top menu select `Image > Adjust > Brightness > Crop`
   - Decrease the "Maximum" value using the sliding bar to increase fluorescence intensity.
