@@ -10,7 +10,7 @@
 
 ## Table of Contents
 
-- [Usage](#usage)
+- [How to use AxoDen](#how-to-use-axoden)
   - [Streamlit App](#streamlit-app)
   - [Standalone GUI](#standalone-gui)
 - [Installation](#installation)
@@ -18,7 +18,7 @@
   - [Git clone](#clone-from-github)
 - [Contributing](#contributing)
 
-## Usage
+## How To Use AxoDen
 
 The simplest way to use AxoDen is to simply use the deployed web app at [axoden.streamlit.app](https://axoden.streamlit.app). It will allow you to upload images directly through a browser and download the results.
 The files that you upload are only ever kept in memory and discarded once you disconnect from the web app. And we never store or collect anything you upload.
@@ -80,7 +80,9 @@ This depends on both the objective used and your device!
 
 ## Installation
 
-This section applies only to people who want to use AxoDen in their python code, or want to run AxoDen from code.
+> [!Note]
+> This section applies only to people who want to use AxoDen in their python code, or want to run AxoDen from code.
+
 There are two ways to install axoden: Through pip (recommended) or by cloning the repo from github.
 
 ### Pip Install
