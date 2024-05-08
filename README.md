@@ -219,7 +219,7 @@ import axoden
 input_folder = "test_images"
 output_folder = "results"
 df_data, df_data_axis = axoden.process_folder(input_folder, pixel_size=0.75521, is_masked=True, output_folder=output_folder)
-axoden.write_summary_data_plot(output_folder, df_data, project_name="my project"):
+axoden.write_summary_data_plot(output_folder, df_data, project_name="my project")
 axoden.write_signal_intensity_along_axis_plot(output_folder, df_data_axis, pixel_size=0.75521, project_name="my_project")
 ```
 
@@ -235,7 +235,7 @@ axoden.save_table(df_data, output_folder, "projections_quantifications.csv")
 axoden.save_table(df_data_axis, output_folder, "projections_quantification_along_axis.csv")
 
 fig_data = axoden.plot_summary_data(df_data, "my_project")
-fig_data_axis = axoden.plot_signal_intensity_along_axis("my_project", df_data_axis, pixel_size=0.75521):
+fig_data_axis = axoden.plot_signal_intensity_along_axis("my_project", df_data_axis, pixel_size=0.75521)
 
 fig_data.show()
 fig_data_axis.show()
