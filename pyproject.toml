@@ -35,3 +35,15 @@ gui = [
 pythonpath = [
     '.'
 ]
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+exclude = ["axoden/gui/streamlit_app/pages/2_❔️_Tutorial_&_How_To.py"]
+
+[tool.ruff.lint]
+select = ['E', 'F', 'W', 'A', 'PLC', 'PLE', 'PLW', 'I', 'E501']
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"

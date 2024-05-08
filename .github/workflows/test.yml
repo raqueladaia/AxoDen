@@ -3,11 +3,11 @@
 
 name: test
 
-on: workflow_dispatch
-  # push:
-  #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
+on:
+  push:
+    branches: [ "main", "release" ]
+  pull_request:
+    branches: [ "main", "release" ]
     
 concurrency:
   group: test-${{ github.ref }}
