@@ -81,8 +81,10 @@ If you want to mask your images to analyze a precise brain region:
     - On the top menu select `Image > Adjust > Brightness > Crop`
     - Decrease the "Maximum" value using the sliding bar to increase fluorescence intensity.
     - Increase the "Minimum" value using the sliding bar to decrease background fluorescence
-    - Tip: Use the histogram (`Analyze > Histogram`) to confirm that the background fluorescence in the brain region does not contain zero values.
 7. Save the resulting image following the [AxoDen naming conventions](#naming-convention).
+
+> [!TIP]
+> Use the histogram (`Analyze > Histogram`) to confirm that the background fluorescence in the brain region does not contain zero values.
 
 #### Running the GUI
 <img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="300">
