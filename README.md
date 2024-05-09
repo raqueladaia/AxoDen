@@ -1,6 +1,8 @@
 # Axoden
 ![Tests](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml/badge.svg?branch=main)
 ![Linting](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)
+![PyPI](https://img.shields.io/pypi/v/axoden?label=pypi%20package)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/axoden)
 
 
 ## TODOs
@@ -28,7 +30,8 @@
 - [ ] Pascal to add badge for pypi
 - [x] Pascal to create gh action to update pip module from release
 - [ ] Pascal to test pip module publish from gh action once secret is set up
-- [ ] Pascal to remove
+- [x] Pascal to build documentation using sphinx
+- [ ] Pascal to upload documentation once secret is set up
 
 ## Table of Contents
 
