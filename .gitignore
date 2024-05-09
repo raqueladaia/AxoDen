@@ -64,3 +64,5 @@ build/
 coverage.xml
 .coverage
 lcov.info
+
+xsample_images/
