@@ -1,9 +1,9 @@
-# Axoden
 [![Test](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/raqueladaia/AxoDen/actions/workflows/test.yml)
 [![Lint](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml)
 [![PyPI](https://img.shields.io/pypi/v/axoden?label=pypi%20package)](https://pypi.org/project/axoden)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/axoden)
 
+# Axoden
 
 ## TODOs
 
