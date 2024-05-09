@@ -7,6 +7,7 @@
 
 - [ ] add one figure from the paper here that describes what AxoDen does
 - [ ] set up github token to make it possible to upload release directly from gh action
+- [ ] add `FLIT_PASSWORD` to github secrets to allow publish from gh action
 - [ ] Raquel to write quick overview here in README.md
 - [ ] Test deployed streamlit app with two concurrent users and 100+ files each
 - [ ] Decide on upload limit for deployed app
@@ -25,7 +26,9 @@
 - [x] Pascal to set up gh action for linting
 - [x] Pascal to set up gh action to build standalone executables
 - [ ] Pascal to add badge for pypi
-- [ ] Pascal to create gh action to update pip module from release branch
+- [x] Pascal to create gh action to update pip module from release
+- [ ] Pascal to test pip module publish from gh action once secret is set up
+- [ ] Pascal to remove
 
 ## Table of Contents
 

@@ -26,6 +26,9 @@ Home = "https://github.com/raqueladaia/AxoDen"
 [tool.setuptools.dynamic]
 version = {attr = "axoden.__vesion__"}
 
+[tool.flit.sdist]
+include = ["axoden"]
+exclude = ["tests", "media", "test_images", "requirements*"]
 
 [project.optional-dependencies]
 gui = [

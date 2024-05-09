@@ -70,14 +70,14 @@ def control_plot_steps(ax, img, title, axs_info):
     """
     Create the subplots of the control plots for each input image.
 
-    Parameters:
-    - ax (list of matplotlib Axes): List of Axes objects to plot the images.
-    - img (numpy array): Input image data.
-    - title (str): Title for the plot.
-    - axs_info (dict or list): Information about the axes.
+    Args:
+        ax (list of matplotlib Axes): List of Axes objects to plot the images.
+        img (numpy array): Input image data.
+        title (str): Title for the plot.
+        axs_info (dict or list): Information about the axes.
 
     Returns:
-    - ax (list of matplotlib Axes): List of Axes objects with the plotted images.
+        ax (list of matplotlib Axes): List of Axes objects with the plotted images.
     """
 
     # Compute x and y axis signals
@@ -420,15 +420,15 @@ def process_image(
 
     Args:
         file_name (any): A filename (string), os.PathLike object or a file object.
-        is_masked (bool): True if the image was masked and contains regions that are set
-            to a value of 0.
+        is_masked (bool): True if the image was masked and contains regions that are
+            set to a value of 0.
         pixel_size (float): Pixel size in micrometers.
         animal (str): Name of the animal. Default is "animal1".
         brain_area (str): Name of the brain area. Default is "brain_area1".
         group (str): Name of the group. Default is "group1".
 
     Returns:
-        Tuple[plt.Figure, dict, dict]: A tuple containing the figure,
+        Tuple[plt.Figure, dict, dict]: A tuple containing the figure, \
             the data for the image and the data with the axis projections.
     """
     img, msk = collect_image_mask(file_name, is_masked)
@@ -499,14 +499,14 @@ def process_folder(
     Args:
         folder_path (str): Path to the folder containing the images.
         pixel_size (float): Pixel size in micrometers.
-        is_masked (bool): True if the image was masked and contains regions that are set
-            to a value of 0.
+        is_masked (bool): True if the image was masked and contains regions that are
+            set to a value of 0.
         output_folder (str): Path to the folder where the data will be saved.
             If not set, the input folder will be used.
         save (bool): True if the control plots should be saved. Default is True.
 
     Returns:
-        Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images
+        Tuple[pd.DataFrame, pd.DataFrame]: A tuple containing the data for the images \
             and the data for the axis.
     """
 
