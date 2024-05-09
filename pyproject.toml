@@ -20,6 +20,9 @@ dependencies = [
     "scikit-image >= 0.20.0",
 ]
 
+[project.urls]
+Home = "https://github.com/raqueladaia/AxoDen"
+
 [tool.setuptools.dynamic]
 version = {attr = "axoden.__vesion__"}
 
