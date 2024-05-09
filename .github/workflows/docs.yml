@@ -12,11 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Install sphinx
+      - name: Install dependencies
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - run: pip install sphinx
+      - run: |
+          pip install -r requirements_gui.txt
+          pip install sphinx
       - name: Build docs with sphinx
         run: cd docs && make html
       - name: Publish github pages
