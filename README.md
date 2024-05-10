@@ -8,9 +8,9 @@
 ## TODOs
 
 - [ ] add one figure from the paper here that describes what AxoDen does
-- [ ] set up github token to make it possible to upload release directly from gh action
-- [ ] add `FLIT_PASSWORD` to github secrets to allow publish from gh action
-- [ ] Raquel to write quick overview here in README.md
+- [x] set up github token to make it possible to upload release directly from gh action
+- [x] add `FLIT_PASSWORD` to github secrets to allow publish from gh action
+- [ ] Raquel to write quick overview (=intro of 2-3 sentences) here in README.md
 - [ ] Test deployed streamlit app with two concurrent users and 100+ files each
 - [ ] Decide on upload limit for deployed app
 - [ ] Add citation here once publication is submitted
@@ -18,9 +18,10 @@
 - [ ] Add link to publication
 - [ ] make repo public once we're ready :muscle:
 
-- [ ] Raquel to write text for initial tutorial --> Text needs to be improved.
-- [ ] Raquel to write section about how data is used on streamlit tutorial page. See readme.
+- [ ] Raquel to write text for initial tutorial --> Add screenshots of steps & more explanation.
+- [x] Raquel to write section about how data is used on streamlit tutorial page. See readme.
 - [ ] Raquel to go over main streamlit app and correct/adapt naming
+- [ ] Raquel to think if I want a question mark with explanation when hoovering over it
 - [ ] Raquel to double check that the units are correct, volume_projections.py line 443 seems strange
 - [x] Raquel to include sample images
 

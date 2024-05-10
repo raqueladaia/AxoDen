@@ -41,10 +41,14 @@ def how_to_app():
                 
         1.  Open your web browser and type: axoden.streamlit.app 
         2.	Toggle the check box if your images are masked.
-        3.	Drag and drop all the files you want to analyze.
+        3.	Drag and drop all the files you want to analyze.  
+                DISCLAIMER: The files that you upload are only ever kept in memory and discarded once you disconnect from the web app. And we never store or collect anything you upload.
         4.	Right after the files have been uploaded, the analysis will run automatically.
         5.	Inspect the control plots to make sure the masking of the image has been detected accurately.
-        6.	Download the results by clicking the “Download Results” button of each section.
+                - EXPLAIN WHAT TO LOOK IN THE CONTROL PLOTS
+        6.	Summary of data
+                EXPLAIN PLOTS & CSV files (columns)
+                Download the results by clicking the “Download Results” button of each section.
 
     ''')
 
