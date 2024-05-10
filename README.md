@@ -172,18 +172,14 @@ There are two other requirements files that you might want to use instad of the 
 For windows, tkinter is installed when installing python.
 If you get an error complaining the module named 'tkinter' is not found when executing the python code, you will have to modify the python installation. For that, launch the python installation again and in the installer, select 'Modify'. Make sure that the checkbox 'tcl/tk and IDLE' is checked!
 
-For linux:
+For linux and Mac, you can install tkinter via command line:
 ```bash
+# Linux
 sudo apt install python3-tk
-```
-
-Or for a specific version of python, e.g. python 3.11:
-```bash
+# Or for a specific version of python, e.g. python 3.11:
 sudo apt install python3.11-tk
-```
 
-Mac (not tested):
-```bash
+# Mac (not tested):
 brew install python-tk
 ```
 
