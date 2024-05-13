@@ -28,7 +28,7 @@ version = {attr = "axoden.__vesion__"}
 
 [tool.flit.sdist]
 include = ["axoden"]
-exclude = ["tests", "media", "test_images", "requirements*"]
+exclude = ["tests", "media/tkinter_gui.png", "test_images", "requirements*"]
 
 [project.optional-dependencies]
 gui = [
