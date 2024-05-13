@@ -10,7 +10,7 @@ env:
 
 jobs:
   pyinstaller-builds:
-    # if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}-latest
     permissions:
       contents: write
@@ -28,8 +28,8 @@ jobs:
           #   dir: "dist"
           - os: windows
             file_extension: ".exe"
-            options: --windowed
-            dir: "build/Axoden_${{ github.ref_name }}"
+            options: --onefile
+            dir: "dist/Axoden_${{ github.ref_name }}"
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
@@ -40,8 +40,11 @@ jobs:
           # upload_exe_with_name: "Axoden_${{ env.VERSION }}.${{ matrix.file_extension }}"
           options: ${{ matrix.options }} --name "Axoden_${{ env.VERSION }}" --hidden-import="PIL._tkinter_finder"
 
-      - name: Echo
+      - name: Echo 1
         run: ls ${{ matrix.dir }}
+
+      - name: Echo 2
+        run: ls dist
 
       - name: Zip executable
         if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
