@@ -39,17 +39,20 @@ jobs:
 
       # - name: Echo
       #   run: ls -laG dist
-      - name: Echo win
+      - name: Echo ubuntu
+        if: ${{ matrix.os == 'ubuntu' }}
+        run: echo "ubuntu"
+      - name: Echo windows
         if: ${{ matrix.os == 'windows' }}
         run: echo "Windows"
-      - name: Echo win mac
-        if: ${{ matrix.os == 'windows' || matrix.os == 'macos' }}
-        run: echo "Windows or mac"
+      - name: Echo ubuntu mac
+        if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
+        run: echo "ubuntu or mac"
 
       - name: Echo if condition
-        run: echo ${{ matrix.os == 'windows' }}
+        run: echo ${{ matrix.os == 'ubuntu' }}
       - name: Echo if condition 2
-        run: echo ${{ matrix.os == 'windows' || matrix.os == 'macos' }}
+        run: echo ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
 
       # - name: Zip executable
       #   if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
