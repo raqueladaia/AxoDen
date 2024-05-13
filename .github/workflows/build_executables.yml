@@ -7,12 +7,14 @@ on: workflow_dispatch
   #   branches: [ "release" ]
 
 env:
-  VERSION: "v0.2.4"
+  VERSION: "v0.2.5"
 
 jobs:
   pyinstaller-builds:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         # os: [ubuntu]
@@ -21,8 +23,8 @@ jobs:
             file_extension: pgk
           # - os: macos
           #   file_extension: "app"
-          - os: windows
-            file_extension: "exe"
+          # - os: windows
+          #   file_extension: "exe"
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
