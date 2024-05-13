@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>GUI &#8212; AxoDen 0.2.14 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=d1102ebc" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=71c180b9"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="axoden.volume_projections" href="volume_projections.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-axoden.gui">
+<span id="gui"></span><h1>GUI<a class="headerlink" href="#module-axoden.gui" title="Link to this heading">¶</a></h1>
+<p>This module contains the GUI components for the AxoDen application.</p>
+<p>Start the tkinter GUI by running the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>axoden.gui.gui_projections_quantification
+</pre></div>
+</div>
+<p>For the streamlit app, run the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>axoden.gui.streamlit_app
+</pre></div>
+</div>
+</section>
+<section id="streamlit-pdf-utility-functions">
+<h1>Streamlit pdf utility functions<a class="headerlink" href="#streamlit-pdf-utility-functions" title="Link to this heading">¶</a></h1>
+<p>This section is only relevant if you want to change or extend the streamlit app functionality.</p>
+<dl class="py function" id="module-axoden.gui.streamlit_app.pdf_utils">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.pdf_utils.fig2pdfpage">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.pdf_utils.</span></span><span class="sig-name descname"><span class="pre">fig2pdfpage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Figure</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PageObject</span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.pdf_utils.fig2pdfpage" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a matplotlib figure to a PyPDF PageObject.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fig</strong> (<em>Figure</em>) – matplotlib figure</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyPDF PageObject containing the input matplotlib figure</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PageObject</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.pdf_utils.fig2stream">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.pdf_utils.</span></span><span class="sig-name descname"><span class="pre">fig2stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Figure</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BytesIO</span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.pdf_utils.fig2stream" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a matplotlib figure to a BytesIO stream.</p>
+<p>The output stream can be directly used as a download in Streamlit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fig</strong> (<em>Figure</em>) – matplotlib figure</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>BytesIO stream of the input matplotlib figure</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BytesIO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.pdf_utils.join_pdfs">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.pdf_utils.</span></span><span class="sig-name descname"><span class="pre">join_pdfs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdfs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PdfReader</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PdfWriter</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BytesIO</span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.pdf_utils.join_pdfs" title="Link to this definition">¶</a></dt>
+<dd><p>Joins all first pages of multiple pdfs into a single pdf.</p>
+<p>This function only cares about the first page.
+These types of pdfs are used when figures are converted to pdfs containing only one
+page. The output BytesIO stream can be directly used as a download in Streamlit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pdfs</strong> (<em>List</em><em>[</em><em>PdfReader</em><em> | </em><em>PdfWriter</em><em>]</em>) – list of pdfs</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>BytesIO stream of the joined pdf</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BytesIO</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.pdf_utils.pages2pdf">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.pdf_utils.</span></span><span class="sig-name descname"><span class="pre">pages2pdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PageObject</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">PdfWriter</span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.pdf_utils.pages2pdf" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a list of PyPDF Pages to a single pdf.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pages</strong> (<em>List</em><em>[</em><em>PageObject</em><em>]</em>) – list of pages</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>PyPDF PdfWriter object containing all input pages</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PdfWriter</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.pdf_utils.pdf2stream">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.pdf_utils.</span></span><span class="sig-name descname"><span class="pre">pdf2stream</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">PdfWriter</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BytesIO</span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.pdf_utils.pdf2stream" title="Link to this definition">¶</a></dt>
+<dd><p>Converts a PyPDF PdfReader to a BytesIO stream.</p>
+<p>The output stream can be directly used as a download in Streamlit.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pdf</strong> (<em>PdfWriter</em>) – PyPDF PdfWriter object</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>BytesIO stream of the input PyPDF PdfReader object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>BytesIO</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="streamlit-app-utility-functions">
+<h1>Streamlit app utility functions<a class="headerlink" href="#streamlit-app-utility-functions" title="Link to this heading">¶</a></h1>
+<p>This section is only relevant if you want to change or extend the streamlit app functionality.</p>
+<dl class="py function" id="module-axoden.gui.streamlit_app.app_utils">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.cached_plot_signal_intensity_along_axis">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">cached_plot_signal_intensity_along_axis</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_data_axis</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BytesIO</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.cached_plot_signal_intensity_along_axis" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a plot of signal intensity along an axis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>project_name</strong> (<em>str</em>) – The name of the project.</p></li>
+<li><p><strong>table_data_axis</strong> (<em>pd.DataFrame</em>) – The table data containing the signal intensity
+values along the axis.</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em>) – The size of each pixel.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the generated figure and a BytesIO</dt><dd><p>object representing the figure.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Figure, BytesIO]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.cached_plot_summary_data">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">cached_plot_summary_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">BytesIO</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.cached_plot_summary_data" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a cached plot of summary data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_data</strong> (<em>pd.DataFrame</em>) – The input DataFrame containing the data for the plot.</p></li>
+<li><p><strong>project_name</strong> (<em>str</em>) – The name of the project.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the generated plot (Figure object)</dt><dd><p>and the BytesIO stream.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[Figure, BytesIO]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.get_brain_regions">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">get_brain_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">UploadedFile</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.get_brain_regions" title="Link to this definition">¶</a></dt>
+<dd><p>Get the brain regions from the uploaded files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>raw_files</strong> (<em>List</em><em>[</em><em>UploadedFile</em><em>]</em>) – The raw uploaded files to process.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of brain regions extracted from the raw files.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.get_figure_by_brain_region">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">get_figure_by_brain_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">figures</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PdfWriter</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">brain_areas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">PdfWriter</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.get_figure_by_brain_region" title="Link to this definition">¶</a></dt>
+<dd><p>Group the given figures by brain region.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>figures</strong> (<em>List</em><em>[</em><em>pypdf.PdfWriter</em><em>]</em>) – A list of figures to be grouped.</p></li>
+<li><p><strong>brain_areas</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of brain areas corresponding to each figure.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A dictionary where the keys are brain regions</dt><dd><p>and the values are lists of figures belonging to each brain region.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, List[pypdf.PdfWriter]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.init_session_state">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">init_session_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.init_session_state" title="Link to this definition">¶</a></dt>
+<dd><p>Initializes the session state variables.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.invalidate_figure_cache">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">invalidate_figure_cache</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.invalidate_figure_cache" title="Link to this definition">¶</a></dt>
+<dd><p>Invalidates the figure cache.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.process_image_single">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">process_image_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_image</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_masked</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.process_image_single" title="Link to this definition">¶</a></dt>
+<dd><p>Process a single image.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_image</strong> (<em>object</em>) – The raw image object.</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em>) – The pixel size.</p></li>
+<li><p><strong>is_masked</strong> (<em>bool</em>) – Flag indicating whether the image is masked.</p></li>
+<li><p><strong>cache</strong> (<em>dict</em><em>, </em><em>optional</em>) – The cache dictionary to store processed images.
+Defaults to None.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the processed image, temporary variables,</dt><dd><p>and temporary axis.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="axoden.gui.streamlit_app.app_utils.process_images">
+<span class="sig-prename descclassname"><span class="pre">axoden.gui.streamlit_app.app_utils.</span></span><span class="sig-name descname"><span class="pre">process_images</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">UploadedFile</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pixel_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_masked</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">PdfWriter</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Figure</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">DataFrame</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#axoden.gui.streamlit_app.app_utils.process_images" title="Link to this definition">¶</a></dt>
+<dd><p>Process a list of raw image files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>raw_files</strong> (<em>List</em><em>[</em><em>UploadedFile</em><em>]</em>) – A list of raw image files.</p></li>
+<li><p><strong>pixel_size</strong> (<em>float</em>) – The pixel size.</p></li>
+<li><p><strong>is_masked</strong> (<em>bool</em>) – A flag indicating whether the images are masked.</p></li>
+<li><p><strong>cache</strong> (<em>Dict</em><em>[</em><em>(</em><em>str</em><em>, </em><em>float</em><em>, </em><em>bool</em><em>)</em><em>, </em><em>(</em><em>pypdf.PdfWriter</em><em>, </em><em>dict</em><em>, </em><em>dict</em><em>)</em><em>]</em><em>, </em><em>optional</em>) – Use st.session_state.figure_cache as an intermediate cache. Defaults to None</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A tuple containing the</dt><dd><p>processed figures, table data, and table data axis.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">AxoDen</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="axoden.html">axoden</a></li>
+<li class="toctree-l1"><a class="reference internal" href="volume_projections.html">axoden.volume_projections</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">GUI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#streamlit-pdf-utility-functions">Streamlit pdf utility functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.pdf_utils.fig2pdfpage"><code class="docutils literal notranslate"><span class="pre">fig2pdfpage()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.pdf_utils.fig2stream"><code class="docutils literal notranslate"><span class="pre">fig2stream()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.pdf_utils.join_pdfs"><code class="docutils literal notranslate"><span class="pre">join_pdfs()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.pdf_utils.pages2pdf"><code class="docutils literal notranslate"><span class="pre">pages2pdf()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.pdf_utils.pdf2stream"><code class="docutils literal notranslate"><span class="pre">pdf2stream()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#streamlit-app-utility-functions">Streamlit app utility functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.cached_plot_signal_intensity_along_axis"><code class="docutils literal notranslate"><span class="pre">cached_plot_signal_intensity_along_axis()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.cached_plot_summary_data"><code class="docutils literal notranslate"><span class="pre">cached_plot_summary_data()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.get_brain_regions"><code class="docutils literal notranslate"><span class="pre">get_brain_regions()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.get_figure_by_brain_region"><code class="docutils literal notranslate"><span class="pre">get_figure_by_brain_region()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.init_session_state"><code class="docutils literal notranslate"><span class="pre">init_session_state()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.invalidate_figure_cache"><code class="docutils literal notranslate"><span class="pre">invalidate_figure_cache()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.process_image_single"><code class="docutils literal notranslate"><span class="pre">process_image_single()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#axoden.gui.streamlit_app.app_utils.process_images"><code class="docutils literal notranslate"><span class="pre">process_images()</span></code></a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="volume_projections.html" title="previous chapter">axoden.volume_projections</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Raquel Adaia Sandoval Ortega, Pascal Dufour.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.3.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/gui.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
