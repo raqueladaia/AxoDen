@@ -438,7 +438,7 @@ def process_image(
 
     [w, b, total] = count_pixels(img_bin[~msk_bool])
     area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
-    area_image_mm = area_img / 1000
+    area_image_mm = area_img / 1000000
 
     # Append the information to the DataFrame for the image
     data = {
@@ -658,7 +658,10 @@ def plot_summary_data(df_input, project_name):
         ax[i_col].set_xticks(np.arange(0, len(brain_areas)))
         ax[i_col].set_xticklabels(brain_areas, rotation=45)
         # Set the y maximum value
-        yval_max = np.ceil(ax[i_col].get_ylim()[1] / 10) * 10
+        if col == "area_img_mm":
+            yval_max = np.ceil(ax[i_col].get_ylim()[1] * 100) / 100
+        else:
+            yval_max = np.ceil(ax[i_col].get_ylim()[1] / 10) * 10
         ax[i_col].set_yticks(np.linspace(0, yval_max, 6))
         ax[i_col].set_ylim(0, yval_max)
         # Set the y label

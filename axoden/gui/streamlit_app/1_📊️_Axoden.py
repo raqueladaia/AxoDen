@@ -48,7 +48,7 @@ def axo_den_app():
     st.header("Input")
     project_name = st.text_input(label="Project Name", value="AxoDen Analysis")
     pixel_size = st.number_input(
-        "Pixel Size (um):",
+        "Pixel Size (μm):",
         value=DEFAULT_PIXEL_SIZE,
         format="%f",
         on_change=invalidate_figure_cache,
@@ -76,7 +76,7 @@ def axo_den_app():
 
     is_masked = st.checkbox(
         "Images are masked (desired brain region are cropped out, "
-        "backround fluorescence has values above 0,\n"
+        "backround fluorescence has values above 0, "
         "areas of the image lacking tissue have value 0)",
         value=True,
         on_change=invalidate_figure_cache,
