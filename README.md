@@ -13,7 +13,7 @@
 - [Installation](#installation)
   - [With pip](#pip-install)
   - [Git clone](#clone-from-github)
-- [Contributing](#contributing)
+- [Using AxoDen in your code](#using-axoden-in-your-code)
 
 ## Overview of AxoDen
 
@@ -185,7 +185,7 @@ usually at http://localhost:8501.
 
 This is the same interface as the [Streamlit Web App](https://axoden.streamlit.app).
 
-# Using axoden in your code
+## Using axoden in your code
 Below you find a few examples of how to use axoden.
 You can see the full [documentation here](https://raqueladaia.github.io/AxoDen/).
 
