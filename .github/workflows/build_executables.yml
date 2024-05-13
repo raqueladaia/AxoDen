@@ -21,15 +21,15 @@ jobs:
       matrix:
         # os: [ubuntu]
         include:
-          - os: ubuntu
-            file_extension: ""
-            options: --onefile
+          # - os: ubuntu
+          #   file_extension: ""
+          #   options: --onefile
           # - os: macos
           #   file_extension: ".app"
           #   options: --windowed
-          # - os: windows
-          #   file_extension: ".exe"
-          #   options: --windowed
+          - os: windows
+            file_extension: ".exe"
+            options: --windowed
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
