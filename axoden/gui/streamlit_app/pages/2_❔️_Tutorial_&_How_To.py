@@ -66,12 +66,17 @@ AxoDen is unable to process more than 1 channel containing pixel values above 0.
 
 > :point_up: :blue[_TIP:_]  
 > _Use the histogram (Analyze > Histogram) to confirm that the background fluorescence in the brain region does not contain zero values._
-
-:warning: TODO: add image of final result in ImageJ/FIJI
 """
     )
 
     st.markdown("""## Part 2: AxoDen analysis""")
+
+    st.markdown(
+        """
+If you want to test AxoDen quickly, you can download the test images from
+[the github repository](https://github.com/raqueladaia/AxoDen/tree/main/test_images)
+"""
+    )
 
     st.markdown("""#### Steps""")
 
@@ -106,7 +111,7 @@ Inspect the control plots to make sure the masking of the image is accurate.
 - The mask is shown in white.
 - The mask should cover any part of the image that contains tissue.
 - If the mask present black spots within, that is because the background fluorescence of the tissue is 0.
-- To correct the mask, repeat Part 1, steps 3.5 to h to create a new masked image.
+- To correct the mask, repeat Part 1, steps 3.2 to 3.7 to create a new masked image.
 - If you cannot correct the mask, it means that during acquistion the background fluorescence was too low. **Consider retaking the image.**
 
 Inspect the control plots to make sure the signal does not bleed to surrounding areas.
@@ -115,7 +120,7 @@ Inspect the control plots to make sure the signal does not bleed to surrounding 
 - The signal is shown in white.
 - If the signal extends beyond the axon limits (=bleeding to surrounding areas),
 it means the signal intensity is too high.
-- To correct, repeat Part 1, steps 3.5 to h to create a new masked image.
+- To correct, repeat Part 1, steps 3.2 to 3.7 to create a new masked image.
 - If you cannot correct the bleeding, your image is likely overexposed. **Consider retaking the image.**
 
 You can also download the control plots to check them in detail and keep them as reference for later use.
