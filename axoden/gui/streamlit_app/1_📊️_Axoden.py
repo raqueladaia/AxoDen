@@ -93,7 +93,7 @@ def axo_den_app():
     # plot table data results
     if st.session_state.table_data is not None:
         logger.info("Creating data section")
-        st.header("Data")
+        st.header("Summary Data")
 
         fig, fig_stream = cached_plot_summary_data(
             st.session_state.table_data, project_name
@@ -106,7 +106,7 @@ def axo_den_app():
     # plot table data by axis results
     if st.session_state.table_data_axis is not None:
         logger.info("Creating data axis section")
-        st.header("Data Axis")
+        st.header("Summary Data Axis")
 
         fig, fig_stream = cached_plot_signal_intensity_along_axis(
             project_name, st.session_state.table_data_axis, pixel_size
