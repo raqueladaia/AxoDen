@@ -18,12 +18,12 @@ jobs:
       matrix:
         # os: [ubuntu]
         include:
-          # - os: ubuntu
-          #   file_extension: ""
-          #   options: --onefile
-          - os: macos
-            file_extension: ".app"
-            options: --windowed
+          - os: ubuntu
+            file_extension: ""
+            options: --onefile
+          # - os: macos
+          #   file_extension: ".app"
+          #   options: --windowed
           # - os: windows
           #   file_extension: ".exe"
           #   options: --onefile
