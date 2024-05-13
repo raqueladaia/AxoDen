@@ -1,9 +1,9 @@
 name: build executables
 
-on:
-  push:
-    tags:
-      - 'v*'
+on: workflow_dispatch
+  # push:
+  #   tags:
+  #     - 'v*'
 
 env:
   VERSION: ${{ github.ref_name }}
@@ -21,12 +21,12 @@ jobs:
           - os: ubuntu
             file_extension: ""
             options: --onefile
-          # - os: macos
-          #   file_extension: ".app"
-          #   options: --windowed
-          # - os: windows
-          #   file_extension: ".exe"
-          #   options: --onefile
+          - os: macos
+            file_extension: ".app"
+            options: --windowed
+          - os: windows
+            file_extension: ".exe"
+            options: --onefile
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
