@@ -438,9 +438,9 @@ def process_image(
 
     [w, b, total] = count_pixels(img_bin[~msk_bool])
     area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
-    area_image_um = (
+    area_image_mm = (
         area_img / 1000
-    )  # TODO: why / 1000? the pixel size is in um, so the area shoud be in um^2 already
+    )
 
     # Append the information to the DataFrame for the image
     data = {
@@ -454,7 +454,7 @@ def process_image(
         "area_image": area_img,
         "area_signal": area_w,
         "area_black": area_b,
-        "area_img_um": area_image_um,
+        "area_img_mm": area_image_mm,
     }
 
     # Append the information to the DataFrame for the axis
@@ -471,7 +471,7 @@ def process_image(
     # Generate control plot
     fig = plt.figure(figsize=(8, 8))
     fig.suptitle(
-        f"Animal {animal} | {brain_area} | Area: {area_image_um:.2f}\u03bcm\u00b2| "
+        f"Animal {animal} | {brain_area} | Area: {area_image_mm:.2f}mm\u00b2| "
         f"{group} | Threshold: {thr:.2f}",
         weight="bold",
     )
@@ -614,10 +614,10 @@ def plot_summary_data(df_input, project_name):
     dict_animals_brain_area = {}
 
     # Define which columns to use for the plot
-    data_cols = ["percent_signal", "area_img_um", "threshold"]
+    data_cols = ["percent_signal", "area_img_mm", "threshold"]
     ylabel_dict = {
         "percent_signal": "Innervation (%)",
-        "area_img_um": "Area (\u03bcm\u00b2)",
+        "area_img_mm": "Area (mm\u00b2)",
         "threshold": "Pixel value",
     }
     sublplot_titles = [
@@ -839,7 +839,7 @@ def plot_signal_intensity_along_axis(
 
 if __name__ == "__main__":
     pixel_size = (
-        0.75521  # um, based on 20x objective and the printed table next to the HALO PC
+        0.75521  # um, based on 20x objective from the Keyence BZ-810X series microscope.
     )
     input_dir = "sample_images"
     output_dir = "output_data"

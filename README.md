@@ -10,7 +10,7 @@
 - [ ] add one figure from the paper here that describes what AxoDen does
 - [x] set up github token to make it possible to upload release directly from gh action
 - [x] add `FLIT_PASSWORD` to github secrets to allow publish from gh action
-- [ ] Raquel to write quick overview (=intro of 2-3 sentences) here in README.md
+- [x] Raquel to write quick overview (=intro of 2-3 sentences) here in README.md
 - [ ] Test deployed streamlit app with two concurrent users and 100+ files each
 - [ ] Decide on upload limit for deployed app
 - [ ] Add citation here once publication is submitted
@@ -20,9 +20,9 @@
 
 - [ ] Raquel to write text for initial tutorial --> Add screenshots of steps & more explanation.
 - [x] Raquel to write section about how data is used on streamlit tutorial page. See readme.
-- [ ] Raquel to go over main streamlit app and correct/adapt naming
+- [x] Raquel to go over main streamlit app and correct/adapt naming
 - [ ] Raquel to think if I want a question mark with explanation when hoovering over it
-- [ ] Raquel to double check that the units are correct, volume_projections.py line 443 seems strange
+- [x] Raquel to double check that the units are correct, volume_projections.py line 443 seems strange
 - [x] Raquel to include sample images
 
 - [x] Pascal to set up gh action for unit testing
@@ -43,6 +43,14 @@
   - [With pip](#pip-install)
   - [Git clone](#clone-from-github)
 - [Contributing](#contributing)
+
+## Overview of AxoDen
+
+AxoDen is an open source platform that facilitates and streamlines the quantification of fluorescently labeled axonal projections of a given brain area.
+
+AxoDen accepts .tif images, transforms them into gray scale and uses the Otsu method to set a threshold that distinguishes signal from background. Because it collects the pixel values of any color channel which sum is above zero, users can use any fluorophore and obtain the same quantification accuracy. In addition, given that the input are images of projections, AxoDen can be applied to virtually any animal species.
+
+AxoDen is a plug an play tool, designed for users with no coding background as well as for developers who wish to integrate the AxoDen functions into their own scripts (read the section "How To Use AxoDen").
 
 ## How To Use AxoDen
 

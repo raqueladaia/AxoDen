@@ -55,7 +55,7 @@ def axo_den_app():
         key="pixel_size",
     )  # Set the pixel size
     st.text(
-        "Note:\nThe default pixel size is for the 20x Objective.\n"
+        "Note:\nThe default pixel size is for the 20x Objective of the Keyence BZ-810X series.\n"
         "Please change it according to the objective used.\n\n4x Objective: 3.77396\n"
         "20x Objective: 0.75521\n"
     )
@@ -75,7 +75,8 @@ def axo_den_app():
 
     is_masked = st.checkbox(
         "Images are masked (desired brain region are cropped out, "
-        "backround is at value 0)",
+        "backround fluorescence has values above 0,\n"
+        "areas of the image lacking tissue have value 0)",
         value=True,
         on_change=invalidate_figure_cache,
         key="is_masked",
