@@ -187,6 +187,7 @@ This is the same interface as the [Streamlit Web App](https://axoden.streamlit.a
 
 # Using axoden in your code
 Below you find a few examples of how to use axoden.
+You can see the full [documentation here](https://raqueladaia.github.io/AxoDen/).
 
 You can process a single image. This will not save any results or plots.
 ```python
