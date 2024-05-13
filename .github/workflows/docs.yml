@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.11"
       - run: |
-          pip install -r requirements_gui.txt
+          pip install -r requirements.txt
           pip install sphinx
       - name: Build docs with sphinx
         run: cd docs && make html

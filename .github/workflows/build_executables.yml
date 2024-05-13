@@ -32,7 +32,7 @@ jobs:
         with:
           python_ver: "3.11"
           spec: "axoden/gui/gui_projections_quantification.py"
-          requirements: "requirements.txt"
+          requirements: "requirements_no_gui.txt"
           options: ${{ matrix.options }} --name "Axoden_${{ env.VERSION }}" --hidden-import="PIL._tkinter_finder"
 
       - name: Echo 1

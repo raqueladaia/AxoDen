@@ -138,13 +138,13 @@ We suggest to set up a virual environment. For more information regarding virtua
 Use pip to install the dependencies (typically in your virtual environment):
 
 ```bash
-pip install -r requirements_gui.txt
+pip install -r requirements.txt
 ```
 
 This will install all required python dependencies to fully use axoden, including running the streamlit app locally. The tkinter library cannot be installed through pip and has to be installed separately.
 
 There are two other requirements files that you might want to use instad of the above.
-- `requirements.txt`: Excludes streamlit, but allows you to use axoden as a library, as well as use the tkinter gui.
+- `requirements_no_gui.txt`: Excludes streamlit, but allows you to use axoden as a library, as well as use the tkinter gui.
 - `requirements_dev.txt`: For development purposes, includes everything including testing and linting (tox, pytest, black, ruff).
 
 #### Install TkInter
