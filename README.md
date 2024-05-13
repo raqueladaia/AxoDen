@@ -2,6 +2,7 @@
 [![Lint](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/raqueladaia/AxoDen/actions/workflows/lint.yml)
 [![PyPI](https://img.shields.io/pypi/v/axoden?label=pypi%20package)](https://pypi.org/project/axoden)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/axoden)
+[![Documentation](https://img.shields.io/badge/Documentation-8A2BE2)](https://raqueladaia.github.io/AxoDen/)
 
 # Axoden
 
