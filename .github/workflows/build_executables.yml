@@ -9,7 +9,7 @@ on:
   #   branches: [ "release" ]
 
 env:
-  VERSION: "v0.2.7"
+  VERSION: "v0.2.8"
 
 jobs:
   pyinstaller-builds:
@@ -44,10 +44,9 @@ jobs:
         run: ls -laG dist
 
       - name: Zip executable
-        run: zip -r Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip dist/Axoden_${{ env.VERSION }}_${{ matrix.os}}${{ matrix.file_extension }}
+        run: zip -r dist/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip dist/Axoden_${{ env.VERSION }}_${{ matrix.os}}${{ matrix.file_extension }}
 
       - name: Echo
-
         run: ls -laG dist
       - name: Release
         uses: softprops/action-gh-release@v2
