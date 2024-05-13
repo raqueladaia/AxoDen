@@ -3,7 +3,7 @@ The `axoden` module provides functionality for performing various operations rel
 quantification of axonal projections.
 """
 
-__version__ = "0.2.1"
+__version__ = "0.2.3"
 
 from .volume_projections import (  # noqa: F401
     load_table,

@@ -12,10 +12,13 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../.."))
 
+import axoden
+
 project = "AxoDen"
 copyright = "2024, Raquel Adaia Sandoval Ortega, Pascal Dufour"  # noqa A001
 author = "Raquel Adaia Sandoval Ortega, Pascal Dufour"
-release = "0.2.1"
+# release = "0.2.1"
+release = axoden.__version__
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
