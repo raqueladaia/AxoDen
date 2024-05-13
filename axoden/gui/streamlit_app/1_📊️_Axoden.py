@@ -100,7 +100,7 @@ def axo_den_app():
         )
 
         st.pyplot(fig)
-        st.download_button("Download figure as pdf", fig_stream, "data.pdf")
+        st.download_button("Download figure as pdf", fig_stream, "axoden_summary_data.pdf")
         st.dataframe(st.session_state.table_data)
 
     # plot table data by axis results
@@ -113,7 +113,7 @@ def axo_den_app():
         )
         st.pyplot(fig)
 
-        st.download_button("Download figure as pdf", fig_stream, "data_axis.pdf")
+        st.download_button("Download figure as pdf", fig_stream, "axoden_summary_data_axis.pdf")
         st.dataframe(st.session_state.table_data_axis)
 
     logger.info("Creating control plots pdf")
