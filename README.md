@@ -5,36 +5,6 @@
 
 # Axoden
 
-## TODOs
-
-- [ ] add one figure from the paper here that describes what AxoDen does
-- [x] set up github token to make it possible to upload release directly from gh action
-- [x] add `FLIT_PASSWORD` to github secrets to allow publish from gh action
-- [x] Raquel to write quick overview (=intro of 2-3 sentences) here in README.md
-- [ ] Test deployed streamlit app with two concurrent users and 100+ files each
-- [ ] Decide on upload limit for deployed app
-- [ ] Add citation here once publication is submitted
-- [ ] Add citation to streamlit app once publication is submitted
-- [ ] Add link to publication
-- [ ] make repo public once we're ready :muscle:
-
-- [ ] Raquel to write text for initial tutorial --> Add screenshots of steps & more explanation.
-- [x] Raquel to write section about how data is used on streamlit tutorial page. See readme.
-- [x] Raquel to go over main streamlit app and correct/adapt naming
-- [ ] Raquel to think if I want a question mark with explanation when hoovering over it
-- [x] Raquel to double check that the units are correct, volume_projections.py line 443 seems strange
-- [x] Raquel to include sample images
-
-- [x] Pascal to set up gh action for unit testing
-- [x] Pascal to set up gh action for linting
-- [x] Pascal to set up gh action to build standalone executables
-- [x] Pascal to automatically create release using gh action and attach executables
-- [x] Pascal to add badge for pypi
-- [x] Pascal to create gh action to update pip module from release
-- [x] Pascal to test pip module publish from gh action once secret is set up
-- [x] Pascal to build documentation using sphinx
-- [ ] Pascal to upload documentation once secret is set up
-
 ## Table of Contents
 
 - [How to use AxoDen](#how-to-use-axoden)
