@@ -1,9 +1,10 @@
 name: build executables
 
 on: workflow_dispatch
-  # push:
-  #   tags:
-  #     - 'v*'
+# on:
+#   push:
+#     tags:
+#       - 'v*'
 
 env:
   VERSION: ${{ github.ref_name }}

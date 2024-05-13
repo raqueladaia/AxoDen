@@ -28,9 +28,10 @@
 - [x] Pascal to set up gh action for unit testing
 - [x] Pascal to set up gh action for linting
 - [x] Pascal to set up gh action to build standalone executables
+- [x] Pascal to automatically create release using gh action and attach executables
 - [x] Pascal to add badge for pypi
 - [x] Pascal to create gh action to update pip module from release
-- [ ] Pascal to test pip module publish from gh action once secret is set up
+- [x] Pascal to test pip module publish from gh action once secret is set up
 - [x] Pascal to build documentation using sphinx
 - [ ] Pascal to upload documentation once secret is set up
 

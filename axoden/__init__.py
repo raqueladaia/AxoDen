@@ -1,6 +1,5 @@
 """
-The `axoden` module provides functionality for performing various operations related to
-quantification of axonal projections.
+axoden simplifies the quantification of axonal projections in neuroscience.
 """
 
 __version__ = "0.2.14"
