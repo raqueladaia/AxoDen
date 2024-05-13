@@ -1,10 +1,9 @@
 name: build executables
 
-on: workflow_dispatch
-# on:
-#   push:
-#     tags:
-#       - 'v*'
+on:
+  push:
+    tags:
+      - 'v*'
 
 env:
   VERSION: ${{ github.ref_name }}
@@ -17,7 +16,6 @@ jobs:
       contents: write
     strategy:
       matrix:
-        # os: [ubuntu]
         include:
           - os: ubuntu
             file_extension: ""
@@ -35,7 +33,6 @@ jobs:
           python_ver: "3.11"
           spec: "axoden/gui/gui_projections_quantification.py"
           requirements: "requirements.txt"
-          # upload_exe_with_name: "Axoden_${{ env.VERSION }}.${{ matrix.file_extension }}"
           options: ${{ matrix.options }} --name "Axoden_${{ env.VERSION }}" --hidden-import="PIL._tkinter_finder"
 
       - name: Echo 1
