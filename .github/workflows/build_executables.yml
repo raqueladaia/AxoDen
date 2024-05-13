@@ -1,13 +1,15 @@
 name: build executables
 
-on: workflow_dispatch
-  # push:
+on:
+  push:
+    tags:
+      - 'v*'
   #   branches: [ "release" ]
   # pull_request:
   #   branches: [ "release" ]
 
 env:
-  VERSION: "v0.2.5"
+  VERSION: "v0.2.6"
 
 jobs:
   pyinstaller-builds:
@@ -21,10 +23,10 @@ jobs:
         include:
           - os: ubuntu
             file_extension: pgk
-          # - os: macos
-          #   file_extension: "app"
-          # - os: windows
-          #   file_extension: "exe"
+          - os: macos
+            file_extension: "app"
+          - os: windows
+            file_extension: "exe"
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
