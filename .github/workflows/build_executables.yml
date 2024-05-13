@@ -23,7 +23,7 @@ jobs:
           #   options: --onefile
           - os: macos
             file_extension: ".app"
-            options: --onefile
+            options: --windowed
           # - os: windows
           #   file_extension: ".exe"
           #   options: --onefile
@@ -40,11 +40,11 @@ jobs:
       - name: Echo 1
         run: ls dist
 
-      - name: Zip executable
+      - name: Zip executable ubuntu and macos
         if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
-        run: cd dist && zip Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}${{ matrix.file_extension }}
+        run: cd dist && zip -r Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}${{ matrix.file_extension }}
 
-      - name: Zip executable
+      - name: Zip executable windows
         if: ${{ matrix.os == 'windows' }}
         run: cd dist && powershell Compress-Archive Axoden_${{ env.VERSION }}${{ matrix.file_extension }} Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
 
