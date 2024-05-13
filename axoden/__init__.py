@@ -2,7 +2,7 @@
 axoden simplifies the quantification of axonal projections in neuroscience.
 """
 
-__version__ = "0.2.14"
+__version__ = "0.3.0"
 
 from .volume_projections import (  # noqa: F401
     load_table,
