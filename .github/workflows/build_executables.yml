@@ -10,7 +10,7 @@ env:
 
 jobs:
   pyinstaller-builds:
-    if: startsWith(github.ref, 'refs/tags/')
+    # if: startsWith(github.ref, 'refs/tags/')
     runs-on: ${{ matrix.os }}-latest
     permissions:
       contents: write
