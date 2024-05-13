@@ -44,7 +44,7 @@ jobs:
         run: ls -laG dist
 
       - name: Zip executable
-        run: zip -r dist/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip dist/Axoden_${{ env.VERSION }}_${{ matrix.os}}${{ matrix.file_extension }}
+        run: cd dist && zip -r Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}_${{ matrix.os}}${{ matrix.file_extension }}
 
       - name: Echo
         run: ls -laG dist
