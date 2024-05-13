@@ -438,9 +438,7 @@ def process_image(
 
     [w, b, total] = count_pixels(img_bin[~msk_bool])
     area_w, area_b, area_img = compute_area(img_bin[~msk_bool], pixel_size)
-    area_image_mm = (
-        area_img / 1000
-    )
+    area_image_mm = area_img / 1000
 
     # Append the information to the DataFrame for the image
     data = {
@@ -839,7 +837,7 @@ def plot_signal_intensity_along_axis(
 
 if __name__ == "__main__":
     pixel_size = (
-        0.75521  # um, based on 20x objective from the Keyence BZ-810X series microscope.
+        0.75521  # um, based on 20x objective from Keyence BZ-810X series microscope.
     )
     input_dir = "sample_images"
     output_dir = "output_data"

@@ -55,7 +55,8 @@ def axo_den_app():
         key="pixel_size",
     )  # Set the pixel size
     st.text(
-        "Note:\nThe default pixel size is for the 20x Objective of the Keyence BZ-810X series.\n"
+        "Note:\nThe default pixel size is for the 20x Objective of the Keyence BZ-810X "
+        "series.\n"
         "Please change it according to the objective used.\n\n4x Objective: 3.77396\n"
         "20x Objective: 0.75521\n"
     )
@@ -100,7 +101,9 @@ def axo_den_app():
         )
 
         st.pyplot(fig)
-        st.download_button("Download figure as pdf", fig_stream, "axoden_summary_data.pdf")
+        st.download_button(
+            "Download figure as pdf", fig_stream, "axoden_summary_data.pdf"
+        )
         st.dataframe(st.session_state.table_data)
 
     # plot table data by axis results
@@ -113,7 +116,9 @@ def axo_den_app():
         )
         st.pyplot(fig)
 
-        st.download_button("Download figure as pdf", fig_stream, "axoden_summary_data_axis.pdf")
+        st.download_button(
+            "Download figure as pdf", fig_stream, "axoden_summary_data_axis.pdf"
+        )
         st.dataframe(st.session_state.table_data_axis)
 
     logger.info("Creating control plots pdf")
