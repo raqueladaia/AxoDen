@@ -21,15 +21,12 @@ jobs:
           # - os: ubuntu
           #   file_extension: ""
           #   options: --onefile
-          #   dir: "dist"
-          # - os: macos
-          #   file_extension: ".app"
-          #   options: --windowed
-          #   dir: "dist"
-          - os: windows
-            file_extension: ".exe"
+          - os: macos
+            file_extension: ".app"
             options: --onefile
-            dir: "dist"
+          # - os: windows
+          #   file_extension: ".exe"
+          #   options: --onefile
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
@@ -41,22 +38,22 @@ jobs:
           options: ${{ matrix.options }} --name "Axoden_${{ env.VERSION }}" --hidden-import="PIL._tkinter_finder"
 
       - name: Echo 1
-        run: ls ${{ matrix.dir }}
+        run: ls dist
 
       - name: Zip executable
         if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
-        run: cd ${{ matrix.dir }} && zip Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}${{ matrix.file_extension }}
+        run: cd dist && zip Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}${{ matrix.file_extension }}
 
       - name: Zip executable
         if: ${{ matrix.os == 'windows' }}
-        run: cd ${{ matrix.dir }} && powershell Compress-Archive Axoden_${{ env.VERSION }}${{ matrix.file_extension }} Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
+        run: cd dist && powershell Compress-Archive Axoden_${{ env.VERSION }}${{ matrix.file_extension }} Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
 
       - name: Echo
-        run: ls ${{ matrix.dir }}
+        run: ls dist
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            ${{ matrix.dir }}/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
+            dist/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
