@@ -29,7 +29,7 @@ jobs:
           - os: windows
             file_extension: ".exe"
             options: --windowed
-            dir: "build"
+            dir: "build/Axoden_${{ github.ref_name }}"
     steps:
       - name: Create Standalone Executable
         uses: sayyid5416/pyinstaller@v1
@@ -44,15 +44,19 @@ jobs:
         run: ls ${{ matrix.dir }}
 
       - name: Zip executable
-        # if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
+        if: ${{ matrix.os == 'ubuntu' || matrix.os == 'macos' }}
         run: cd ${{ matrix.dir }} && zip Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip Axoden_${{ env.VERSION }}${{ matrix.file_extension }}
+
+      - name: Zip executable
+        if: ${{ matrix.os == 'windows' }}
+        run: cd ${{ matrix.dir }} && powershell Compress-Archive Axoden_${{ env.VERSION }}${{ matrix.file_extension }} Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
 
       - name: Echo
         run: ls ${{ matrix.dir }}
 
-      - name: Rename executable
-        if: ${{ matrix.os == 'windows' }}
-        run: mv ${{ matrix.dir }}/Axoden_${{ env.VERSION }}.zip ${{ matrix.dir }}/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
+      # - name: Rename executable
+      #   if: ${{ matrix.os == 'windows' }}
+      #   run: mv ${{ matrix.dir }}/Axoden_${{ env.VERSION }}.zip ${{ matrix.dir }}/Axoden_${{ env.VERSION }}_${{ matrix.os }}.zip
 
       - name: Echo
         run: ls ${{ matrix.dir }}
