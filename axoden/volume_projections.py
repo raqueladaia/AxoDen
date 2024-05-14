@@ -550,7 +550,7 @@ def process_folder(
 
         # Save control plot
         if save:
-            figure_name = f"{animal}_{brain_area}_control_plot.pdf"
+            figure_name = f"{animal}_{brain_area}_{group}_control_plot.pdf"
             figure_path = os.path.join(control_plot_path, figure_name)
             plt.savefig(figure_path, dpi=300)
         plt.close(fig)
