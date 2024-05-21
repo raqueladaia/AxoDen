@@ -4,7 +4,7 @@ import pypdf
 from gui_utils import (
     _sample_fig,
     _sample_pdf_page,
-    _sample_pdf_reader,
+    _sample_pdf_stream,
     _sample_pdf_writer,
 )
 
@@ -18,10 +18,10 @@ from axoden.gui.streamlit_app.pdf_utils import (
 
 
 def test_join_pdfs():
-    pdf_reader = _sample_pdf_reader()
-    pdf_reader = _sample_pdf_reader()
+    pdf_reader = _sample_pdf_stream()
+    pdf_reader2 = _sample_pdf_stream()
 
-    stream = join_pdfs([pdf_reader, pdf_reader])
+    stream = join_pdfs([pdf_reader, pdf_reader2])
     assert isinstance(stream, BytesIO)
 
     pdf_reader_out = pypdf.PdfReader(stream)

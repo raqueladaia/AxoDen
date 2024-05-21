@@ -4,23 +4,16 @@ import pandas as pd
 import pypdf
 from gui_utils import (
     _sample_pdf_writer,
-    _streamlit_app,
+    # _streamlit_app,
     _uploaded_file,
 )
 
 from axoden.gui.streamlit_app.app_utils import (
     get_brain_regions,
     get_figure_by_brain_region,
-    invalidate_figure_cache,
     process_image_single,
     process_images,
 )
-
-
-def test_invalidate_figure_cache():
-    with patch("axoden.gui.streamlit_app.app_utils.st.session_state") as mock_cache:
-        invalidate_figure_cache()
-        assert mock_cache.figure_cache == {}
 
 
 def test_get_brain_regions():
@@ -46,8 +39,6 @@ def test_get_figure_by_brain_region():
 
 
 def test_process_images():
-    at = _streamlit_app()
-
     files = [
         {"animal": "745", "brain_area": "TH-PL", "file_name": "745_TH-PL.tif"},
         {"animal": "746", "brain_area": "TH-CL", "file_name": "746_TH-CL.tif"},
@@ -59,9 +50,7 @@ def test_process_images():
         uploaded_file = _uploaded_file(file["file_name"])
         uploaded_files.append(uploaded_file)
 
-    figs, data, data_axis = process_images(
-        uploaded_files, 0.75521, True, cache=at.session_state.figure_cache
-    )
+    figs, data, data_axis = process_images(uploaded_files, 0.75521, True)
 
     assert len(figs) == n_uploades
 
@@ -76,21 +65,13 @@ def test_process_images():
 
 
 def test_process_image_single():
-    at = _streamlit_app()
-
     animal = "745"
     brain_area = "TH-PL"
     file_name = "745_TH-PL.tif"
 
-    pixel_size = 0.75521
-    is_masked = True
-
     uploaded_file = _uploaded_file(file_name)
 
-    assert len(at.session_state.figure_cache) == 0
-    fig_pdf, data, data_axis = process_image_single(
-        uploaded_file, 0.75521, True, cache=at.session_state.figure_cache
-    )
+    fig_pdf, data, data_axis = process_image_single(uploaded_file, 0.75521, True)
     assert isinstance(fig_pdf, pypdf.PdfWriter)
     assert isinstance(data, dict)
     assert isinstance(data_axis, dict)
@@ -98,13 +79,6 @@ def test_process_image_single():
     assert brain_area == data["brain_area"]
     assert animal == data_axis["animal"]
     assert brain_area == data_axis["brain_area"]
-
-    assert len(at.session_state.figure_cache) == 1
-    assert (
-        uploaded_file.file_id,
-        pixel_size,
-        is_masked,
-    ) in at.session_state.figure_cache
 
 
 def test_process_image_single_cache():

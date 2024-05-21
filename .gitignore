@@ -66,3 +66,4 @@ coverage.xml
 lcov.info
 
 xsample_images/
+mprofile*

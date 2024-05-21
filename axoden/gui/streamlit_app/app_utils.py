@@ -26,31 +26,31 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.WARNING)
 
 
-def init_session_state():
-    """Initializes the session state variables."""
-    if "figures" not in st.session_state:
-        st.session_state.figures = []
+# def init_session_state():
+#     """Initializes the session state variables."""
+#     if "figures" not in st.session_state:
+#         st.session_state.figures = []
 
-    if "ctrl_plots_pdf" not in st.session_state:
-        st.session_state.ctrl_plots_pdf = None
+#     if "ctrl_plots_pdf" not in st.session_state:
+#         st.session_state.ctrl_plots_pdf = None
 
-    if "table_data" not in st.session_state:
-        st.session_state.table_data = None
+#     if "table_data" not in st.session_state:
+#         st.session_state.table_data = None
 
-    if "table_data_axis" not in st.session_state:
-        st.session_state.table_data_axis = None
+#     if "table_data_axis" not in st.session_state:
+#         st.session_state.table_data_axis = None
 
-    if "figure_cache" not in st.session_state:
-        st.session_state.figure_cache = {}
-
-
-def invalidate_figure_cache():
-    """Invalidates the figure cache."""
-    st.session_state.figure_cache = {}
-    logger.info("invalidated figure cache")
+#     if "figure_cache" not in st.session_state:
+#         st.session_state.figure_cache = {}
 
 
-@st.cache_data
+# def invalidate_figure_cache():
+#     """Invalidates the figure cache."""
+#     st.session_state.figure_cache = {}
+#     logger.info("invalidated figure cache")
+
+
+@st.cache_data(ttl=300)
 def get_brain_regions(raw_files: List[UploadedFile]) -> Iterable[str]:
     """
     Get the brain regions from the uploaded files.
@@ -140,7 +140,7 @@ def process_images(
     raw_files: List[UploadedFile],
     pixel_size: float,
     is_masked: bool,
-    cache: Dict[Tuple[str, float, bool], Tuple[pypdf.PdfWriter, dict, dict]] = None,
+    # cache: Dict[Tuple[str, float, bool], Tuple[pypdf.PdfWriter, dict, dict]] = None,
 ) -> Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]:
     """
     Process a list of raw image files.
@@ -173,8 +173,13 @@ def process_images(
         progress_bar.progress(
             i * progress_step_size, text=f"Processing image {(i+1)}/{len(raw_files)}"
         )
-        fig, data_row, data_axis_row = process_image_single(
-            raw_image, pixel_size, is_masked, cache=cache
+        # fig, data_row, data_axis_row = process_image_single(
+        #     raw_image, pixel_size, is_masked, cache=cache
+        # )
+        fig, data_row, data_axis_row = process_image_single_cached(
+            raw_image,
+            pixel_size,
+            is_masked,
         )
 
         if np.sum(table_data.shape) == 0:
@@ -194,6 +199,48 @@ def process_images(
 
     progress_bar.empty()
     return figures, table_data, table_data_axis
+
+
+def hash_uploaded_file(file: UploadedFile) -> str:
+    """Hash util for an uploaded file."""
+    print("hashing uploaded file")
+    return file.file_id
+
+
+@st.cache_data(ttl=300, hash_funcs={UploadedFile: hash_uploaded_file}, max_entries=50)
+def process_image_single_cached(raw_image, pixel_size, is_masked):
+
+    print("running process_image_single_cached")
+
+    try:
+        animal, brain_area, group = collect_info_from_filename(raw_image.name)
+    except ValueError as e:
+        logger.error(f"Error: {e}")
+        st.warning(f"Error: {e}")
+        st.stop()
+        return None, None, None
+    try:
+        fig, _temp_, _temp_axis_ = process_image(
+            raw_image,
+            is_masked,
+            pixel_size,
+            animal=animal,
+            brain_area=brain_area,
+            group=group,
+        )
+    except UnidentifiedImageError as e:
+        logger.error(f"Error: {e}")
+        st.warning(f"Error: {e}")
+        st.stop()
+        return None, None, None
+
+    # pdf_fig = fig2pdfpage(fig)
+    # pdf_fig = pages2pdf([pdf_fig])
+
+    pdf_fig = fig2stream(fig)
+    plt.close(fig)
+
+    return pdf_fig, _temp_, _temp_axis_
 
 
 def process_image_single(raw_image, pixel_size, is_masked, cache={}):

@@ -1,4 +1,5 @@
 import os
+from io import BytesIO
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
@@ -36,14 +37,22 @@ def _sample_pdf_page():
 
 def _sample_pdf_writer():
     pdf_reader = _sample_pdf_reader()
-    pdf_writer = pypdf.PdfWriter(pdf_reader)
+    pdf_writer = pypdf.PdfWriter(clone_from=pdf_reader)
     return pdf_writer
 
 
 def _sample_pdf_reader():
     pdf_test_file = "tests/data/sample.pdf"
     pdf_reader = pypdf.PdfReader(pdf_test_file)
+    print(pdf_reader.pages)
     return pdf_reader
+
+
+def _sample_pdf_stream():
+    pdf_reader = _sample_pdf_writer()
+    out_pdf_stream = BytesIO()
+    pdf_reader.write_stream(out_pdf_stream)
+    return out_pdf_stream
 
 
 def _sample_fig():

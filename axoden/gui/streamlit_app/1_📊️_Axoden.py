@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 
+import matplotlib.pyplot as plt
 import streamlit as st
 from streamlit_pdf_viewer import pdf_viewer
 
@@ -13,13 +14,12 @@ from axoden.gui.streamlit_app.app_utils import (
     cached_plot_summary_data,
     get_brain_regions,
     get_figure_by_brain_region,
-    init_session_state,
-    invalidate_figure_cache,
     process_images,
 )
-from axoden.gui.streamlit_app.pdf_utils import join_pdfs, pdf2stream
+from axoden.gui.streamlit_app.pdf_utils import join_pdfs
 
-MAX_IMAGES = 200  # TODO: decide on file upload limit
+MAX_IMAGES = 50
+MAX_IMAGE_MB = 100
 DEFAULT_PIXEL_SIZE = 0.75521
 
 logger = logging.getLogger(__name__)
@@ -28,8 +28,6 @@ logging.basicConfig(level=logging.WARNING)
 
 def axo_den_app():
     """Main Streamlit application for AxoDen."""
-    init_session_state()
-
     st.title("AxoDen")
 
     with st.container(border=True):
@@ -51,7 +49,6 @@ def axo_den_app():
         "Pixel Size (μm):",
         value=DEFAULT_PIXEL_SIZE,
         format="%f",
-        on_change=invalidate_figure_cache,
         key="pixel_size",
     )  # Set the pixel size
     st.text(
@@ -69,60 +66,75 @@ def axo_den_app():
     if len(raw_files) > MAX_IMAGES:
         st.warning(
             f"This application is limited to using {MAX_IMAGES} images concurrently. "
-            "You uploaded {len(raw_files)}, remaining images will not be used in the "
+            f"You uploaded {len(raw_files)}, remaining images will not be used in the "
             "analysis!"
         )
-        raw_files = raw_files[:MAX_IMAGES]
+        st.stop()
 
     is_masked = st.checkbox(
         "Images are masked (desired brain region are cropped out, "
         "backround fluorescence has values above 0, "
         "areas of the image lacking tissue have value 0)",
         value=True,
-        on_change=invalidate_figure_cache,
         key="is_masked",
     )
 
+    import numpy as np
+
+    total_memory = np.sum([f.size for f in raw_files]) / 1024**2
+    if total_memory > MAX_IMAGE_MB:
+        st.warning(
+            f"We currently limit the uploaded images to {MAX_IMAGE_MB} MB "
+            f"and {MAX_IMAGES} images.\n"
+            f"The memory from your uploaded files is {total_memory} MB!\n"
+            "Please reduce the number of images or the size of the images to continue. "
+            "You can run the analysis in batches (e.g. per group or brain area)."
+        )
+        st.stop()
+
     (
-        st.session_state.figures,
-        st.session_state.table_data,
-        st.session_state.table_data_axis,
-    ) = process_images(
-        raw_files, pixel_size, is_masked, cache=st.session_state.figure_cache
-    )
+        ctrl_figures,
+        table_data,
+        table_data_axis,
+    ) = process_images(raw_files, pixel_size, is_masked)
 
     # plot table data results
-    if st.session_state.table_data is not None:
+    if table_data is not None:
         logger.info("Creating data section")
         st.header("Summary Data")
 
         fig, fig_stream = cached_plot_summary_data(
-            st.session_state.table_data, project_name
+            table_data,
+            project_name,
         )
 
         st.pyplot(fig)
+        plt.close(fig)
         st.download_button(
             "Download figure as pdf", fig_stream, "axoden_summary_data.pdf"
         )
-        st.dataframe(st.session_state.table_data)
+        st.dataframe(table_data)
 
     # plot table data by axis results
-    if st.session_state.table_data_axis is not None:
+    if table_data_axis is not None:
         logger.info("Creating data axis section")
         st.header("Summary Data Axis")
 
         fig, fig_stream = cached_plot_signal_intensity_along_axis(
-            project_name, st.session_state.table_data_axis, pixel_size
+            project_name,
+            table_data_axis,
+            pixel_size,
         )
         st.pyplot(fig)
+        plt.close(fig)
 
         st.download_button(
             "Download figure as pdf", fig_stream, "axoden_summary_data_axis.pdf"
         )
-        st.dataframe(st.session_state.table_data_axis)
+        st.dataframe(table_data_axis)
 
     logger.info("Creating control plots pdf")
-    st.session_state.ctrl_plots_pdf = join_pdfs(st.session_state.figures)
+    ctrl_plots_pdf = join_pdfs(ctrl_figures)
 
     brain_regions = get_brain_regions(raw_files)
     if brain_regions:
@@ -131,8 +143,8 @@ def axo_den_app():
 
         tabs = st.tabs(brain_regions)
 
-        brain_areas = st.session_state.table_data.brain_area.to_list()
-        figure_dict = get_figure_by_brain_region(st.session_state.figures, brain_areas)
+        brain_areas = table_data.brain_area.to_list()
+        figure_dict = get_figure_by_brain_region(ctrl_figures, brain_areas)
 
         for tab, brain_region in zip(tabs, brain_regions):
             figures = figure_dict[brain_region]
@@ -143,15 +155,13 @@ def axo_den_app():
                     tabs_brain_region = st.tabs(indices)
                     for i, tab_fig_nr in enumerate(tabs_brain_region):
                         with tab_fig_nr:
-                            pdf_figure = pdf2stream(figures[i]).getvalue()
-                            pdf_viewer(pdf_figure, key=f"{brain_region}_{i}")
+                            pdf_viewer(figures[i].getvalue(), key=f"{brain_region}_{i}")
                 else:
-                    pdf_figure = pdf2stream(figures[0]).getvalue()
-                    pdf_viewer(pdf_figure, key=brain_region)
+                    pdf_viewer(figures[0].getvalue(), key=brain_region)
 
         st.download_button(
             "Download plots as pdf",
-            st.session_state.ctrl_plots_pdf,
+            ctrl_plots_pdf,
             "control_plots.pdf",
         )
 

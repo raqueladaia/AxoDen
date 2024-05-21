@@ -19,9 +19,11 @@ Only the user can see, interact and store the data the user has uploaded and gen
 """
     )
 
+    st.markdown("## Part 1: Prepare your images")
+    st.image("media/preprocessing.jpg")
+
     st.markdown(
         """
-## Part 1: Prepare your images
 Preparing your images for AxoDen requires the use of 3rd party software.
 
 We recommend using ImageJ or FIJI to modify your images because programs such as Adobe Illustrator
@@ -69,7 +71,9 @@ AxoDen is unable to process more than 1 channel containing pixel values above 0.
 """
     )
 
-    st.markdown("""## Part 2: AxoDen analysis""")
+    st.markdown("## Part 2: AxoDen analysis")
+
+    st.image("media/workflow.jpg")
 
     st.markdown(
         """

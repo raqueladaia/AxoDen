@@ -30,9 +30,7 @@ def test_app_upload():
     uploaded_file = _uploaded_file(file_name)
 
     # first we get what process_images would return
-    figs, data, data_axis = process_images(
-        [uploaded_file], pixel_size, is_masked, cache=at.session_state.figure_cache
-    )
+    figs, data, data_axis = process_images([uploaded_file], pixel_size, is_masked)
 
     # then we mock the actual call, so even though the file_uploader does have any
     # images, it returns a result this allows us to simulate the upload of an image
@@ -48,9 +46,6 @@ def test_app_upload():
     # cannot directly compare dataframes as they contain np.arrays
     assert np.all(at.dataframe[1].value.columns == data_axis.columns)
     assert at.dataframe[1].value.shape == data_axis.shape
-
-    # assert the pdf control plots to download exists
-    assert at.session_state.ctrl_plots_pdf is not None
 
     # there should be two download buttons
     assert len(at.get("download_button")) == 2

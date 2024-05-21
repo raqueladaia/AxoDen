@@ -1,5 +1,5 @@
 from io import BytesIO
-from typing import List, Union
+from typing import List
 
 from matplotlib.figure import Figure
 from pypdf import PdfReader, PdfWriter
@@ -75,7 +75,7 @@ def pages2pdf(pages: List[PageObject]) -> PdfWriter:
     return pdf
 
 
-def join_pdfs(pdfs: List[Union[PdfReader, PdfWriter]]) -> BytesIO:
+def join_pdfs(pdf_streams: List[BytesIO]) -> BytesIO:
     """Joins all first pages of multiple pdfs into a single pdf.
 
     This function only cares about the first page.
@@ -83,16 +83,19 @@ def join_pdfs(pdfs: List[Union[PdfReader, PdfWriter]]) -> BytesIO:
     page. The output BytesIO stream can be directly used as a download in Streamlit.
 
     Args:
-        pdfs (List[PdfReader | PdfWriter]): list of pdfs
+        pdfs (List[BytesIO]): list of pdfs as streams
 
     Returns:
         BytesIO: BytesIO stream of the joined pdf
 
     """
     pdf = PdfWriter()
-    for p in pdfs:
+    for p_stream in pdf_streams:
+        p = PdfReader(p_stream)
+
         page = p.pages[0]
         pdf.add_page(page)
-    pdf_stream = BytesIO()
-    pdf.write_stream(pdf_stream)
-    return pdf_stream
+
+    out_pdf_stream = BytesIO()
+    pdf.write_stream(out_pdf_stream)
+    return out_pdf_stream

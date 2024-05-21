@@ -6,6 +6,9 @@
 
 # Axoden
 
+<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/workflow.jpg?raw=true)">
+
+
 ## Table of Contents
 
 - [How to use AxoDen](#how-to-use-axoden)
