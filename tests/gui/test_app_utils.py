@@ -1,7 +1,7 @@
+from io import BytesIO
 from unittest.mock import patch
 
 import pandas as pd
-import pypdf
 from gui_utils import (
     _sample_pdf_writer,
     # _streamlit_app,
@@ -11,7 +11,7 @@ from gui_utils import (
 from axoden.gui.streamlit_app.app_utils import (
     get_brain_regions,
     get_figure_by_brain_region,
-    process_image_single,
+    process_image_single_cached,
     process_images,
 )
 
@@ -64,15 +64,15 @@ def test_process_images():
         assert file["brain_area"] in data_axis["brain_area"].values
 
 
-def test_process_image_single():
+def test_process_image_single_cached():
     animal = "745"
     brain_area = "TH-PL"
     file_name = "745_TH-PL.tif"
 
     uploaded_file = _uploaded_file(file_name)
 
-    fig_pdf, data, data_axis = process_image_single(uploaded_file, 0.75521, True)
-    assert isinstance(fig_pdf, pypdf.PdfWriter)
+    fig_pdf, data, data_axis = process_image_single_cached(uploaded_file, 0.75521, True)
+    assert isinstance(fig_pdf, BytesIO)
     assert isinstance(data, dict)
     assert isinstance(data_axis, dict)
     assert animal == data["animal"]
@@ -81,32 +81,16 @@ def test_process_image_single():
     assert brain_area == data_axis["brain_area"]
 
 
-def test_process_image_single_cache():
-    file_name = "745_TH-PL.tif"
-    pixel_size = 0.75521
-    is_masked = True
-    uploaded_file = _uploaded_file(file_name)
-
-    cache_key = (uploaded_file.file_id, pixel_size, is_masked)
-    cache_value = "fake cache value"
-    cache = {cache_key: cache_value}
-
-    output_value = process_image_single(
-        uploaded_file, pixel_size, is_masked, cache=cache
-    )
-    assert output_value == cache_value
-
-
 @patch("axoden.gui.streamlit_app.app_utils.st.warning")
 @patch("axoden.gui.streamlit_app.app_utils.st.stop")
-def test_process_image_single_error(warning_mock, stop_mock):
+def test_process_image_single_cached_error(warning_mock, stop_mock):
     file_name = "745_TH-PL.tif"
     pixel_size = 0.75521
     is_masked = True
     uploaded_file = _uploaded_file(file_name)
     uploaded_file.name = "invalid.tif"
 
-    process_image_single(uploaded_file, pixel_size, is_masked)
+    process_image_single_cached(uploaded_file, pixel_size, is_masked)
 
     # If we get an invalid image name, the streamlit app should stop and show a warning
     assert warning_mock.called
@@ -116,7 +100,7 @@ def test_process_image_single_error(warning_mock, stop_mock):
 
     warning_mock.reset_mock()
     stop_mock.reset_mock()
-    process_image_single(uploaded_file, pixel_size, is_masked)
+    process_image_single_cached(uploaded_file, pixel_size, is_masked)
     # If we get valid image name, but the file can't be read, we should stop and warn
     assert warning_mock.called
     assert stop_mock.called

@@ -9,6 +9,7 @@ from streamlit_pdf_viewer import pdf_viewer
 if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
+from axoden import __version__ as axoden_version
 from axoden.gui.streamlit_app.app_utils import (
     cached_plot_signal_intensity_along_axis,
     cached_plot_summary_data,
@@ -29,6 +30,7 @@ logging.basicConfig(level=logging.WARNING)
 def axo_den_app():
     """Main Streamlit application for AxoDen."""
     st.title("AxoDen")
+    st.text(f"Version {axoden_version}")
 
     with st.container(border=True):
         st.write(
@@ -59,15 +61,19 @@ def axo_den_app():
     )
 
     raw_files = st.file_uploader(
-        "Upload image here. You can add more or remove them later.",
+        "Upload image here. You can add more or remove them later. "
+        f"You can upload up to {MAX_IMAGES} images "
+        f"with a total size of {MAX_IMAGE_MB} MB.",
         type=["tif"],
         accept_multiple_files=True,
     )
     if len(raw_files) > MAX_IMAGES:
         st.warning(
             f"This application is limited to using {MAX_IMAGES} images concurrently. "
-            f"You uploaded {len(raw_files)}, remaining images will not be used in the "
-            "analysis!"
+            f"You uploaded {len(raw_files)}, remove some to start the analysis. "
+            "If you have more images, either run the analysis in batches "
+            "(e.g. per group or brain area), or use the standalone version of AxoDen, "
+            "which you can find. at https://github.com/raqueladaia/AxoDen/releases"
         )
         st.stop()
 
@@ -88,7 +94,9 @@ def axo_den_app():
             f"and {MAX_IMAGES} images.\n"
             f"The memory from your uploaded files is {total_memory} MB!\n"
             "Please reduce the number of images or the size of the images to continue. "
-            "You can run the analysis in batches (e.g. per group or brain area)."
+            "You can run the analysis in batches (e.g. per group or brain area), "
+            "or use the standalone version of Axoden, "
+            "which you can find. at https://github.com/raqueladaia/AxoDen/releases"
         )
         st.stop()
 

@@ -6,13 +6,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import pypdf
 import streamlit as st
 from matplotlib.figure import Figure
 from PIL import UnidentifiedImageError
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
-from axoden.gui.streamlit_app.pdf_utils import fig2pdfpage, fig2stream, pages2pdf
+from axoden.gui.streamlit_app.pdf_utils import fig2stream
 from axoden.volume_projections import (
     collect_info_from_filename,
     plot_signal_intensity_along_axis,
@@ -24,30 +23,6 @@ matplotlib.use("Agg")  # fixes hanging tests due to use of tk backend
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.WARNING)
-
-
-# def init_session_state():
-#     """Initializes the session state variables."""
-#     if "figures" not in st.session_state:
-#         st.session_state.figures = []
-
-#     if "ctrl_plots_pdf" not in st.session_state:
-#         st.session_state.ctrl_plots_pdf = None
-
-#     if "table_data" not in st.session_state:
-#         st.session_state.table_data = None
-
-#     if "table_data_axis" not in st.session_state:
-#         st.session_state.table_data_axis = None
-
-#     if "figure_cache" not in st.session_state:
-#         st.session_state.figure_cache = {}
-
-
-# def invalidate_figure_cache():
-#     """Invalidates the figure cache."""
-#     st.session_state.figure_cache = {}
-#     logger.info("invalidated figure cache")
 
 
 @st.cache_data(ttl=300)
@@ -101,9 +76,7 @@ def cached_plot_signal_intensity_along_axis(
         pixel_size (float): The size of each pixel.
 
     Returns:
-        Tuple[Figure, BytesIO]: A tuple containing the generated figure and a BytesIO
-            object representing the figure.
-
+        Tuple[Figure, BytesIO]: A tuple containing the generated figure and file stream.
     """
     logger.info("creating signal intensity along axis")
     fig = plot_signal_intensity_along_axis(project_name, table_data_axis, pixel_size)
@@ -112,18 +85,18 @@ def cached_plot_signal_intensity_along_axis(
 
 
 def get_figure_by_brain_region(
-    figures: List[pypdf.PdfWriter], brain_areas: List[str]
-) -> Dict[str, List[pypdf.PdfWriter]]:
+    figures: List[BytesIO], brain_areas: List[str]
+) -> Dict[str, List[BytesIO]]:
     """
     Group the given figures by brain region.
 
     Args:
-        figures (List[pypdf.PdfWriter]): A list of figures to be grouped.
+        figures (List[BytesIO]): A list of figure streams to be grouped.
         brain_areas (List[str]): A list of brain areas corresponding to each figure.
 
     Returns:
-        Dict[str, List[pypdf.PdfWriter]]: A dictionary where the keys are brain regions
-            and the values are lists of figures belonging to each brain region.
+        Dict[str, List[BytesIO]]: A dictionary where the keys are brain regions
+            and the values are lists of figure streams belonging to each brain region.
     """
     logger.info("get_figure_by_brain_region")
     figures_out = {}
@@ -140,21 +113,17 @@ def process_images(
     raw_files: List[UploadedFile],
     pixel_size: float,
     is_masked: bool,
-    # cache: Dict[Tuple[str, float, bool], Tuple[pypdf.PdfWriter, dict, dict]] = None,
-) -> Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]:
-    """
-    Process a list of raw image files.
+) -> Tuple[List[BytesIO], pd.DataFrame, pd.DataFrame]:
+    """Process a list of raw image files.
 
     Args:
         raw_files (List[UploadedFile]): A list of raw image files.
         pixel_size (float): The pixel size.
         is_masked (bool): A flag indicating whether the images are masked.
-        cache (Dict[(str, float, bool), (pypdf.PdfWriter, dict, dict)], optional):
-            Use st.session_state.figure_cache as an intermediate cache. Defaults to None
 
     Returns:
-        Tuple[List[plt.Figure], pd.DataFrame, pd.DataFrame]: A tuple containing the
-            processed figures, table data, and table data axis.
+        Tuple[List[BytesIO], pd.DataFrame, pd.DataFrame]: A tuple containing the
+            processed figure streams, table data, and table data axis.
     """
 
     if not raw_files:
@@ -173,9 +142,6 @@ def process_images(
         progress_bar.progress(
             i * progress_step_size, text=f"Processing image {(i+1)}/{len(raw_files)}"
         )
-        # fig, data_row, data_axis_row = process_image_single(
-        #     raw_image, pixel_size, is_masked, cache=cache
-        # )
         fig, data_row, data_axis_row = process_image_single_cached(
             raw_image,
             pixel_size,
@@ -203,15 +169,24 @@ def process_images(
 
 def hash_uploaded_file(file: UploadedFile) -> str:
     """Hash util for an uploaded file."""
-    print("hashing uploaded file")
     return file.file_id
 
 
-@st.cache_data(ttl=300, hash_funcs={UploadedFile: hash_uploaded_file}, max_entries=50)
-def process_image_single_cached(raw_image, pixel_size, is_masked):
+@st.cache_data(ttl=300, hash_funcs={UploadedFile: hash_uploaded_file}, max_entries=100)
+def process_image_single_cached(
+    raw_image: UploadedFile, pixel_size: float, is_masked: bool
+) -> Tuple[BytesIO, Dict, Dict]:
+    """Process a single image.
 
-    print("running process_image_single_cached")
+    Args:
+        raw_image (UploadedFile): The input image object.
+        pixel_size (float): The pixel size in um.
+        is_masked (bool): Flag indicating whether the image is masked.
 
+    Returns:
+        Tuple[BytesIO, Dict, Dict]: A tuple containing the processed image as a stream
+            and the data and axis data
+    """
     try:
         animal, brain_area, group = collect_info_from_filename(raw_image.name)
     except ValueError as e:
@@ -239,58 +214,5 @@ def process_image_single_cached(raw_image, pixel_size, is_masked):
 
     pdf_fig = fig2stream(fig)
     plt.close(fig)
-
-    return pdf_fig, _temp_, _temp_axis_
-
-
-def process_image_single(raw_image, pixel_size, is_masked, cache={}):
-    """
-    Process a single image.
-
-    Args:
-        raw_image (object): The raw image object.
-        pixel_size (float): The pixel size.
-        is_masked (bool): Flag indicating whether the image is masked.
-        cache (dict, optional): The cache dictionary to store processed images.
-            Defaults to None.
-
-    Returns:
-        tuple: A tuple containing the processed image, temporary variables,
-            and temporary axis.
-    """
-
-    cache_key = (raw_image.file_id, pixel_size, is_masked)
-    if cache_key in cache:
-        logger.info(f"process_image_single found cache for {cache_key}")
-        return cache[cache_key]
-
-    try:
-        animal, brain_area, group = collect_info_from_filename(raw_image.name)
-    except ValueError as e:
-        logger.error(f"Error: {e}")
-        st.warning(f"Error: {e}")
-        st.stop()
-        return None, None, None
-    try:
-        fig, _temp_, _temp_axis_ = process_image(
-            raw_image,
-            is_masked,
-            pixel_size,
-            animal=animal,
-            brain_area=brain_area,
-            group=group,
-        )
-    except UnidentifiedImageError as e:
-        logger.error(f"Error: {e}")
-        st.warning(f"Error: {e}")
-        st.stop()
-        return None, None, None
-
-    pdf_fig = fig2pdfpage(fig)
-    pdf_fig = pages2pdf([pdf_fig])
-    plt.close(fig)
-
-    cache[(raw_image.file_id, pixel_size, is_masked)] = (pdf_fig, _temp_, _temp_axis_)
-    logger.info(f"process_image_single created cache for {cache_key}")
 
     return pdf_fig, _temp_, _temp_axis_
