@@ -18,8 +18,8 @@ from axoden.gui.streamlit_app.app_utils import (
 )
 from axoden.gui.streamlit_app.pdf_utils import join_pdfs
 
-MAX_IMAGES = 50
-MAX_IMAGE_MB = 100
+MAX_IMAGES = 100
+MAX_IMAGE_MB = 200
 DEFAULT_PIXEL_SIZE = 0.75521
 
 logger = logging.getLogger(__name__)
