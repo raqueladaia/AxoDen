@@ -19,6 +19,14 @@ Only the user can see, interact and store the data the user has uploaded and gen
 """
     )
 
+    st.markdown(
+        """
+#### Contact
+If you have any questions, suggestions or encounter problems, please contact us at: rasandor[at]upenn.edu
+
+"""
+)
+
     st.markdown("## Part 1: Prepare your images")
     st.image("media/preprocessing.jpg")
 
