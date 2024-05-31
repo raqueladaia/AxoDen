@@ -6,6 +6,9 @@
 
 # Axoden
 
+Manuscript can be found on [bioRxiv](https://www.biorxiv.org/content/10.1101/2024.05.30.596687)
+([pdf](https://www.biorxiv.org/content/10.1101/2024.05.30.596687.full.pdf))
+
 <img src="https://github.com/raqueladaia/AxoDen/blob/main/media/workflow.jpg?raw=true)">
 
 
