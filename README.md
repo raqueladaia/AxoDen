@@ -6,8 +6,10 @@
 
 # Axoden
 
-Manuscript can be found on [bioRxiv](https://www.biorxiv.org/content/10.1101/2024.05.30.596687)
-([pdf](https://www.biorxiv.org/content/10.1101/2024.05.30.596687.full.pdf))
+[![eNeuro](https://img.shields.io/badge/eNeuro-ENEURO.0233--24.2025-orange)](https://doi.org/10.1523/eneuro.0233-24.2025)
+
+Manuscript can be found on [eNeuro](https://www.eneuro.org/content/12/6/ENEURO.0233-24.2025)
+([pdf](https://www.eneuro.org/content/eneuro/12/6/ENEURO.0233-24.2025.full.pdf))
 
 <img src="https://github.com/raqueladaia/AxoDen/blob/main/media/workflow.jpg?raw=true)">
 
