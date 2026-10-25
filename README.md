@@ -11,7 +11,7 @@
 Manuscript can be found on [eNeuro](https://www.eneuro.org/content/12/6/ENEURO.0233-24.2025)
 ([pdf](https://www.eneuro.org/content/eneuro/12/6/ENEURO.0233-24.2025.full.pdf))
 
-<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/workflow.jpg?raw=true)">
+<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/workflow.jpg?raw=true">
 
 
 ## Table of Contents
@@ -83,7 +83,7 @@ If you want to mask your images to analyze a precise brain region:
 
 #### Running the GUI
 Execute the application, and you should be presented with the follwoing GUI:
-<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true)" width="300">
+<img src="https://github.com/raqueladaia/AxoDen/blob/main/media/tkinter_gui.png?raw=true" width="300">
 
 - Select the folder you prepared in the previous step. Use the `Select Folder` button to open a folder selection dialog
 - The output folder will be set to the subfolder `Axoden_output` but you can change it. If the folder does not exist, it will be created.
@@ -138,6 +138,7 @@ If you want to make changes to axoden, you can clone the full code from the gith
 #### Clone the repo
 ```bash
   git clone https://github.com/raqueladaia/AxoDen.git
+  cd AxoDen
 ```
 
 We suggest to set up a virual environment. For more information regarding virtual environments, see https://docs.python.org/3/library/venv.html
