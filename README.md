@@ -236,3 +236,7 @@ fig_data_axis = axoden.plot_signal_intensity_along_axis("my_project", df_data_ax
 fig_data.show()
 fig_data_axis.show()
 ```
+
+## Author
+
+Developed by [Raquel Adaia Sandoval Ortega, PhD](https://sandovalortega.com/), neuroscientist at the University of Pennsylvania. Read more about AxoDen and related research software at [sandovalortega.com/axoden/](https://sandovalortega.com/axoden/). A step-by-step walkthrough is in [Getting started with AxoDen](https://sandovalortega.com/axoden-getting-started/).
